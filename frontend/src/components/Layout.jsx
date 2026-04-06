@@ -1,6 +1,16 @@
-import { Link, Outlet } from 'react-router-dom';
+import { Link, Outlet, useNavigate } from 'react-router-dom';
+import { useContext } from 'react';
+import { AuthContext } from '../context/AuthContext';
 
 function Layout() {
+    const { user, logout } = useContext(AuthContext);
+    const navigate = useNavigate();
+
+    const handleLogout = () => {
+        logout();
+        navigate('/login');
+    };
+
     return (
         <div className="min-h-screen bg-base-200">
             {/* Navbar */}
@@ -16,7 +26,19 @@ function Layout() {
                         <li><Link to="/projects">Projects</Link></li>
                         <li><Link to="/tasks">Tasks</Link></li>
                         <li><Link to="/resources">Resources</Link></li>
-                        <li><Link to="/login">Login</Link></li>
+
+                        {user ? (
+                            <li>
+                                <details>
+                                    <summary>{user.username}</summary>
+                                    <ul className="bg-base-100 rounded-t-none p-2">
+                                        <li><a onClick={handleLogout}>Logout</a></li>
+                                    </ul>
+                                </details>
+                            </li>
+                        ) : (
+                            <li><Link to="/login">Login</Link></li>
+                        )}
                     </ul>
                 </div>
             </div>
