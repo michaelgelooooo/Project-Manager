@@ -3,11 +3,14 @@ from .models import Task
 
 
 class TaskSerializer(serializers.ModelSerializer):
+    project_name = serializers.CharField(source='project.project_name', read_only=True)
+
     class Meta:
         model = Task
         fields = [
             "id",
             "project",
+            "project_name",  # add this
             "task_name",
             "slug",
             "description",

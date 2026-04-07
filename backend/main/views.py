@@ -16,8 +16,9 @@ class DashboardView(APIView):
         user = request.user
 
         # Get 6 most urgent projects
-        # Projects with deadlines first (sorted by closest), then projects without deadlines
-        urgent_projects = Project.objects.filter(user=user).order_by("deadline")[:6]
+        urgent_projects = Project.objects.filter(
+            user=user, status__in=["ongoing", "completed"], deadline__isnull=False
+        ).order_by("deadline")[:6]
 
         # Get 5 most urgent tasks (uses model's default ordering)
         urgent_tasks = Task.objects.filter(project__user=user)[:5]

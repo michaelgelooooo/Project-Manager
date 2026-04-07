@@ -1,0 +1,45 @@
+function TaskCard({ task }) {
+    const priorityStyles = {
+        high: 'badge-error',
+        medium: 'badge-warning',
+        low: 'badge-success',
+    };
+
+    const statusStyles = {
+        planned: 'badge-error',
+        ongoing: 'badge-warning',
+    };
+
+    return (
+        <div className="card bg-base-100/75 rounded-xl shadow-xl hover:bg-primary/50 hover:scale-102 hover:-translate-y-1 transform transition-all duration-150 ease-in-out cursor-pointer">
+            <div className="card-body p-4">
+
+                <div className="flex items-center justify-between">
+                    <h3 className="card-title text-lg">{task.task_name}</h3>
+                    <div className={`badge capitalize font-semibold ${priorityStyles[task.priority] || 'badge-ghost'}`}>
+                        <i className="text-xs fas fa-flag"></i>
+                        {task.priority}
+                    </div>
+                </div>
+
+                <div className="flex items-center justify-between">
+                    <p className="text-sm text-base-content">{task.project_name}</p>
+                    <div className={`badge capitalize font-semibold ${statusStyles[task.status] || 'badge-ghost'}`}>
+                        <i className="text-xs fas fa-circle"></i>
+                        {task.status}
+                    </div>
+                </div>
+
+                {task.due_date && (
+                    <p className="text-sm">
+                        <span className="font-semibold">Due:</span>{' '}
+                        {new Date(task.due_date).toLocaleDateString()}
+                    </p>
+                )}
+
+            </div>
+        </div>
+    );
+}
+
+export default TaskCard;

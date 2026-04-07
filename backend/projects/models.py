@@ -14,8 +14,8 @@ class Project(models.Model):
     ]
 
     COVER_IMAGE_CHOICES = [
-        # Neutrals
         ("default", "Default"),
+        # Neutrals
         ("white", "White"),
         ("gray", "Gray"),
         ("black", "Black"),

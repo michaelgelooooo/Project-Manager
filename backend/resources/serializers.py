@@ -3,11 +3,14 @@ from .models import Resource
 
 
 class ResourceSerializer(serializers.ModelSerializer):
+    project_name = serializers.CharField(source='project.project_name', read_only=True)
+
     class Meta:
         model = Resource
         fields = [
             "id",
             "project",
+            "project_name",
             "resource_title",
             "slug",
             "content",
