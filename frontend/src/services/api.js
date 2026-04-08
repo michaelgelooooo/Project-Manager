@@ -1,9 +1,7 @@
 import axios from 'axios';
 
-// Base URL for your Django API
-const API_URL = 'http://localhost:8000/api';
+const API_URL = 'http://192.168.91.125:8000/api';
 
-// Create axios instance with default config
 const api = axios.create({
     baseURL: API_URL,
     headers: {
@@ -11,7 +9,7 @@ const api = axios.create({
     },
 });
 
-// Add token to requests if it exists
+// Attach access token to every request
 api.interceptors.request.use(
     (config) => {
         const token = localStorage.getItem('access_token');
@@ -20,11 +18,82 @@ api.interceptors.request.use(
         }
         return config;
     },
-    (error) => {
+    (error) => Promise.reject(error)
+);
+
+// ---- Token refresh interceptor ----
+let isRefreshing = false;
+let failedQueue = [];
+
+const processQueue = (error, token = null) => {
+    failedQueue.forEach((prom) => {
+        if (error) prom.reject(error);
+        else prom.resolve(token);
+    });
+    failedQueue = [];
+};
+
+api.interceptors.response.use(
+    (response) => response,
+    async (error) => {
+        const originalRequest = error.config;
+
+        if (error.response?.status === 401 && !originalRequest._retry) {
+            if (isRefreshing) {
+                // Queue any requests that come in while a refresh is already in progress
+                return new Promise((resolve, reject) => {
+                    failedQueue.push({ resolve, reject });
+                })
+                    .then((token) => {
+                        originalRequest.headers.Authorization = `Bearer ${token}`;
+                        return api(originalRequest);
+                    })
+                    .catch((err) => Promise.reject(err));
+            }
+
+            originalRequest._retry = true;
+            isRefreshing = true;
+
+            const refreshToken = localStorage.getItem('refresh_token');
+
+            if (!refreshToken) {
+                localStorage.clear();
+                window.location.href = '/auth';
+                return Promise.reject(error);
+            }
+
+            try {
+                const { data } = await axios.post(`${API_URL}/auth/token/refresh/`, {
+                    refresh: refreshToken,
+                });
+
+                // Store new tokens (rotation gives a new refresh token too)
+                localStorage.setItem('access_token', data.access);
+                if (data.refresh) {
+                    localStorage.setItem('refresh_token', data.refresh);
+                }
+
+                processQueue(null, data.access);
+                originalRequest.headers.Authorization = `Bearer ${data.access}`;
+                return api(originalRequest);
+
+            } catch (refreshError) {
+                // Refresh token itself has expired — force logout
+                processQueue(refreshError, null);
+                localStorage.clear();
+                window.location.href = '/auth';
+                return Promise.reject(refreshError);
+
+            } finally {
+                isRefreshing = false;
+            }
+        }
+
         return Promise.reject(error);
     }
 );
 
+// ---- API methods (unchanged) ----
 export const authAPI = {
     register: (userData) => api.post('/auth/register/', userData),
     login: (credentials) => api.post('/auth/login/', credentials),

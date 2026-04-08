@@ -59,7 +59,7 @@ function Dashboard() {
                     </div>
                     <div className="collapse-content p-0 mt-4">
                         {data?.urgent_projects?.length === 0 ? (
-                            <div className="group flex flex-col items-center justify-center h-64 bg-secondary/25 hover:bg-primary/75 border-3 border-dashed border-secondary rounded-xl transition-color duration-150 ease-in-out p-4">
+                            <div className="group flex flex-col items-center justify-center h-64 bg-secondary/25 hover:bg-primary/75 border-3 border-dashed border-secondary rounded-xl transition-color duration-150 ease-in-out p-4 mb-4">
                                 <i className="fas fa-folder-open text-6xl mb-4 transition-transform duration-200 group-hover:scale-110"></i>
                                 <p className="text-xl font-semibold">No urgent projects</p>
                                 <p className="text-base text-center">Projects with upcoming deadlines will appear here</p>
