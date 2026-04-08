@@ -11,7 +11,6 @@ export const AuthProvider = ({ children }) => {
     useEffect(() => {
         const token = localStorage.getItem('access_token');
         const storedUser = localStorage.getItem('user');
-
         if (token && storedUser) {
             setUser(JSON.parse(storedUser));
         }
@@ -37,21 +36,21 @@ export const AuthProvider = ({ children }) => {
         } catch (error) {
             return {
                 success: false,
-                error: error.response?.data?.detail || 'Login failed'
+                error: error.response?.data?.detail || 'Login failed',
             };
         }
     };
 
     // Register function
-    const register = async (username, password, email) => {
+    const register = async (username, password, email, firstName, lastName) => {
         try {
-            await authAPI.register({ username, password, email });
+            await authAPI.register({ username, password, email, first_name: firstName, last_name: lastName });
             // After successful registration, automatically log in
             return await login(username, password);
         } catch (error) {
             return {
                 success: false,
-                error: error.response?.data?.error || 'Registration failed'
+                error: error.response?.data?.error || 'Registration failed',
             };
         }
     };

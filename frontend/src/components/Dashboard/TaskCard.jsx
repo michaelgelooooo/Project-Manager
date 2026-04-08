@@ -33,7 +33,12 @@ function TaskCard({ task }) {
                 {task.due_date && (
                     <p className="text-sm">
                         <span className="font-semibold">Due:</span>{' '}
-                        {new Date(task.due_date).toLocaleDateString()}
+                        {new Date(task.due_date).toLocaleDateString('en-GB', {
+                            year: 'numeric',
+                            month: 'short',
+                            day: '2-digit',
+                            weekday: 'short'
+                        })}
                     </p>
                 )}
 

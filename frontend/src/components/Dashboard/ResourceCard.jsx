@@ -11,7 +11,12 @@ function ResourceCard({ resource }) {
                 <p className="text-sm text-base-content">{resource.project_name}</p>
                 <p className="text-sm">
                     <span className="font-semibold">Last Updated:</span>{' '}
-                    {new Date(resource.updated_at).toLocaleDateString()}
+                    {new Date(resource.updated_at).toLocaleDateString('en-GB', {
+                        year: 'numeric',
+                        month: 'short',
+                        day: '2-digit',
+                        weekday: 'short'
+                    })}
                 </p>
             </div>
         </div>

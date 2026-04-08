@@ -36,7 +36,12 @@ function ProjectCard({ project }) {
                     {project.deadline && (
                         <div className="text-sm leading-tight">
                             <span className="font-semibold">Deadline:</span>{' '}
-                            {new Date(project.deadline).toLocaleDateString()}
+                            {new Date(project.deadline).toLocaleDateString('en-GB', {
+                                year: 'numeric',
+                                month: 'short',
+                                day: '2-digit',
+                                weekday: 'short'
+                            })}
                         </div>
                     )}
                 </div>
