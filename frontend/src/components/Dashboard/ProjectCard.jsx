@@ -20,7 +20,7 @@ function ProjectCard({ project }) {
                     </div>
 
                     <div
-                        className={`badge font-semibold capitalize p-2 transition-all duration-200 ${statusStyles[project.status] || 'badge-primary'
+                        className={`badge badge-sm font-semibold uppercase p-2 transition-all duration-200 ${statusStyles[project.status] || 'badge-primary'
                             }`}
                     >
                         <i className="text-xs fas fa-circle"></i>

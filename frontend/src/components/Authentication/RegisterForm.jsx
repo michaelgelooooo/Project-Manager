@@ -45,59 +45,59 @@ function RegisterForm() {
 
             <form onSubmit={handleSubmit}>
                 <div className="form-control mb-4">
-                    <label className="label">
-                        <span className="label-text">Username</span>
+                    <label className="floating-label">
+                        <span>Username</span>
+                        <input
+                            type="text"
+                            placeholder="Choose a username"
+                            className="input input-lg input-secondary input-bordered w-full"
+                            value={username}
+                            onChange={(e) => setUsername(e.target.value)}
+                            required
+                        />
                     </label>
-                    <input
-                        type="text"
-                        placeholder="Choose a username"
-                        className="input input-bordered w-full"
-                        value={username}
-                        onChange={(e) => setUsername(e.target.value)}
-                        required
-                    />
                 </div>
 
                 <div className="form-control mb-4">
-                    <label className="label">
-                        <span className="label-text">Email</span>
+                    <label className="floating-label">
+                        <span>Email</span>
+                        <input
+                            type="email"
+                            placeholder="Enter email"
+                            className="input input-lg input-secondary input-bordered w-full"
+                            value={email}
+                            onChange={(e) => setEmail(e.target.value)}
+                            required
+                        />
                     </label>
-                    <input
-                        type="email"
-                        placeholder="Enter email"
-                        className="input input-bordered w-full"
-                        value={email}
-                        onChange={(e) => setEmail(e.target.value)}
-                        required
-                    />
                 </div>
 
                 <div className="form-control mb-4">
-                    <label className="label">
-                        <span className="label-text">Password</span>
+                    <label className="floating-label">
+                        <span>Password</span>
+                        <input
+                            type="password"
+                            placeholder="Create password"
+                            className="input input-lg input-secondary input-bordered w-full"
+                            value={password}
+                            onChange={(e) => setPassword(e.target.value)}
+                            required
+                        />
                     </label>
-                    <input
-                        type="password"
-                        placeholder="Create password"
-                        className="input input-bordered w-full"
-                        value={password}
-                        onChange={(e) => setPassword(e.target.value)}
-                        required
-                    />
                 </div>
 
                 <div className="form-control">
-                    <label className="label">
-                        <span className="label-text">Confirm Password</span>
+                    <label className="floating-label">
+                        <span>Confirm Password</span>
+                        <input
+                            type="password"
+                            placeholder="Confirm password"
+                            className="input input-lg input-secondary input-bordered w-full"
+                            value={confirmPassword}
+                            onChange={(e) => setConfirmPassword(e.target.value)}
+                            required
+                        />
                     </label>
-                    <input
-                        type="password"
-                        placeholder="Confirm password"
-                        className="input input-bordered w-full"
-                        value={confirmPassword}
-                        onChange={(e) => setConfirmPassword(e.target.value)}
-                        required
-                    />
                 </div>
 
                 <div className="divider divider-neutral"></div>

@@ -4,7 +4,7 @@ function ResourceCard({ resource }) {
             <div className="card-body p-4">
                 <div className="flex justify-between">
                     <h3 className="card-title text-lg">{resource.resource_title}</h3>
-                    <div className='badge capitalize font-semibold badge-primary'>
+                    <div className='badge badge-sm badge-soft uppercase font-semibold badge-info'>
                         {resource.resource_type}
                     </div>
                 </div>

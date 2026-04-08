@@ -37,31 +37,31 @@ function LoginForm() {
 
             <form onSubmit={handleSubmit}>
                 <div className="form-control mb-4">
-                    <label className="label">
-                        <span className="label-text">Username</span>
+                    <label className="floating-label">
+                        <span>Username</span>
+                        <input
+                            type="text"
+                            placeholder="Enter username"
+                            className="input input-lg input-secondary input-bordered w-full"
+                            value={username}
+                            onChange={(e) => setUsername(e.target.value)}
+                            required
+                        />
                     </label>
-                    <input
-                        type="text"
-                        placeholder="Enter username"
-                        className="input input-bordered w-full"
-                        value={username}
-                        onChange={(e) => setUsername(e.target.value)}
-                        required
-                    />
                 </div>
 
                 <div className="form-control">
-                    <label className="label">
-                        <span className="label-text">Password</span>
+                    <label className="floating-label">
+                        <span>Password</span>
+                        <input
+                            type="password"
+                            placeholder="Enter password"
+                            className="input input-lg input-secondary input-bordered w-full"
+                            value={password}
+                            onChange={(e) => setPassword(e.target.value)}
+                            required
+                        />
                     </label>
-                    <input
-                        type="password"
-                        placeholder="Enter password"
-                        className="input input-bordered w-full"
-                        value={password}
-                        onChange={(e) => setPassword(e.target.value)}
-                        required
-                    />
                 </div>
 
                 <div className="divider divider-neutral"></div>

@@ -17,17 +17,22 @@ class DashboardView(APIView):
 
         # Get 6 most urgent projects
         urgent_projects = []
-        # urgent_projects = Project.objects.filter(
-        #     user=user, status__in=["planned", "ongoing"], deadline__isnull=False
-        # ).order_by("deadline")[:6]
+        urgent_projects = Project.objects.filter(
+            user=user, status__in=["planned", "ongoing"], deadline__isnull=False
+        ).order_by("deadline")[:6]
 
         # Get 5 most urgent tasks (uses model's default ordering)
-        urgent_tasks = Task.objects.filter(project__user=user)[:5]
+        urgent_tasks = Task.objects.filter(
+            project__user=user,
+            project__status__in=["planned", "ongoing"],
+            status__in=["planned", "ongoing"],
+        )[:5]
 
         # Get 5 recently updated resources
-        recent_resources = Resource.objects.filter(project__user=user).order_by(
-            "-updated_at"
-        )[:5]
+        recent_resources = Resource.objects.filter(
+            project__user=user,
+            project__status__in=["planned", "ongoing"],
+        ).order_by("-updated_at")[:5]
 
         # Serialize the data
         data = {

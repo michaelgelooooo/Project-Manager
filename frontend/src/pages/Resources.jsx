@@ -1,4 +1,10 @@
+import { useEffect } from "react";
+
 function Resources() {
+    useEffect(() => {
+        document.title = 'MOMENTUM | Resources';
+    }, []);
+
     return (
         <div>
             <h1 className="text-3xl font-bold mb-4">Resources</h1>

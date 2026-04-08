@@ -133,7 +133,7 @@ function Dashboard() {
                     >
                         RESOURCE BOARD
                     </summary>
-                    <div className="collapse-content text-sm">
+                    <div className="collapse-content space-y-2">
                         {data?.recent_resources?.length === 0 ? (
                             <div className="group flex flex-col items-center justify-center h-128 hover:bg-primary/50 border-3 border-dashed border-base-100 rounded-xl transition-color duration-150 ease-in-out p-4">
                                 <i className="fas fa-book-open text-6xl mb-2 transition-transform duration-200 group-hover:scale-110"></i>

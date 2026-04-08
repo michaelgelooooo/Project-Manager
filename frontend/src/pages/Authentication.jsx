@@ -1,13 +1,18 @@
+import { useEffect } from 'react';
 import LoginForm from '../components/Authentication/LoginForm';
 import RegisterForm from '../components/Authentication/RegisterForm';
 
 function Authentication() {
+    useEffect(() => {
+        document.title =  'MOMENTUM | Authentication';
+    }, []);
+
     return (
         <div className="min-h-screen flex justify-center bg-base-100 px-8 pt-16 sm:pt-32">
             <div className="tabs tabs-box bg-base-300 shadow-xl p-8 mb-4 w-md rounded-2xl h-fit">
                 <div className="w-full flex justify-center mb-8">
                     <div
-                        className="text-4xl font-bold text-secondary hover:text-primary transform hover:scale-105 transition-all duration-150 ease-in-out"
+                        className="text-4xl font-bold text-secondary"
                         style={{ fontFamily: "'Bungee Shade', sans-serif" }}
                     >
                         MOMENTUM
@@ -21,7 +26,7 @@ function Authentication() {
                     defaultChecked
                 />
                 <div className="tab-content">
-                    <div className="divider divider-neutral my-2"></div>
+                    <div className="divider divider-neutral my-4"></div>
                     <LoginForm />
                 </div>
                 <input
@@ -31,7 +36,7 @@ function Authentication() {
                     aria-label="REGISTER"
                 />
                 <div className="tab-content">
-                    <div className="divider divider-neutral my-2"></div>
+                    <div className="divider divider-neutral my-4"></div>
                     <RegisterForm />
                 </div>
             </div>
