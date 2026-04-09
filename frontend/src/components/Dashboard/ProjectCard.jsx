@@ -33,6 +33,8 @@ function ProjectCard({ project }) {
                         {project.project_type}
                     </p>
 
+                    <progress class="progress progress-info w-full" value="70" max="100"></progress>
+
                     {project.deadline && (
                         <div className="text-sm leading-tight">
                             <span className="font-semibold">Deadline:</span>{' '}
