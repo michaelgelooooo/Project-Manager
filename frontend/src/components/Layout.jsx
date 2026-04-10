@@ -1,6 +1,6 @@
 import { Outlet } from 'react-router-dom';
-import Navbar from './Navbar';
-import Dock from './Dock';
+import Navbar from './UI/Navbar';
+import Dock from './UI/Dock';
 
 function Layout() {
     return (

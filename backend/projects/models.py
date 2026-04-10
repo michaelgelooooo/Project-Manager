@@ -56,7 +56,6 @@ class Project(models.Model):
     updated_at = models.DateTimeField(auto_now=True)
 
     class Meta:
-        ordering = ["-created_at"]
         verbose_name = "Project"
         verbose_name_plural = "Projects"
 
