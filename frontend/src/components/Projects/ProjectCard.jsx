@@ -42,10 +42,10 @@ function ProjectCard({ project }) {
                         <span>{formatDate(project.updated_at)}</span>
                     </div>
                     {project.deadline && (
-                        <div className="flex items-center gap-1">
+                        <span className="badge badge-error badge-soft gap-1 font-semibold">
                             <i className="fas fa-calendar-day text-[10px]" />
-                            <span className="font-semibold text-base-content/75">{formatDate(project.deadline)}</span>
-                        </div>
+                            {formatDate(project.deadline)}
+                        </span>
                     )}
                 </div>
 

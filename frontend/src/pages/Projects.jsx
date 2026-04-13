@@ -2,10 +2,20 @@ import { useEffect, useState } from "react";
 import { projectsAPI } from "../services/api";
 import ProjectCard from "../components/Projects/ProjectCard";
 import Pagination from "../components/UI/Pagination";
+import SearchSortControls from "../components/UI/SearchSortControls";
+import StatsDisplay from "../components/UI/StatsDisplay";
 import usePagination from "../hooks/usePagination";
 
+const SORT_OPTIONS = [
+    { value: "updated", label: "Recent" },
+    { value: "name_asc", label: "Name ↑" },
+    { value: "name_desc", label: "Name ↓" },
+    { value: "deadline_asc", label: "Deadline ↑" },
+    { value: "deadline_desc", label: "Deadline ↓" },
+];
+
 function TabContent({ projects, emptyState }) {
-    const { page, setPage, totalPages, paginated } = usePagination(projects);
+    const { page, setPage, totalPages, paginated } = usePagination(projects, 6);
 
     if (projects.length === 0) return emptyState;
 
@@ -23,18 +33,23 @@ function TabContent({ projects, emptyState }) {
 
 function Projects() {
     const [data, setData] = useState([]);
+    const [stats, setStats] = useState(null);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
     const [search, setSearch] = useState("");
     const [sortBy, setSortBy] = useState("updated");
 
     useEffect(() => {
-        document.title = 'MOMENTUM | Projects';
+        document.title = "MOMENTUM | Projects";
 
-        const fetchProjects = async () => {
+        const fetchData = async () => {
             try {
-                const response = await projectsAPI.getAll();
-                setData(response.data);
+                const [projectsRes, statsRes] = await Promise.all([
+                    projectsAPI.getAll(),
+                    projectsAPI.getStats(),
+                ]);
+                setData(projectsRes.data);
+                setStats(statsRes.data);
                 setLoading(false);
             } catch (err) {
                 setError(err.message);
@@ -42,26 +57,15 @@ function Projects() {
             }
         };
 
-        fetchProjects();
+        fetchData();
     }, []);
-
-    const sortOptions = [
-        { value: "updated",       label: "Recent" },
-        { value: "name_asc",      label: "Name ↑" },
-        { value: "name_desc",     label: "Name ↓" },
-        { value: "deadline_asc",  label: "Deadline ↑" },
-        { value: "deadline_desc", label: "Deadline ↓" },
-    ];
 
     const sortProjects = (projects) => {
         return [...projects].sort((a, b) => {
             switch (sortBy) {
-                case "updated":
-                    return new Date(b.updated_at) - new Date(a.updated_at);
-                case "name_asc":
-                    return a.project_name.localeCompare(b.project_name);
-                case "name_desc":
-                    return b.project_name.localeCompare(a.project_name);
+                case "updated": return new Date(b.updated_at) - new Date(a.updated_at);
+                case "name_asc": return a.project_name.localeCompare(b.project_name);
+                case "name_desc": return b.project_name.localeCompare(a.project_name);
                 case "deadline_asc":
                     if (!a.deadline) return 1;
                     if (!b.deadline) return -1;
@@ -70,8 +74,7 @@ function Projects() {
                     if (!a.deadline) return 1;
                     if (!b.deadline) return -1;
                     return new Date(b.deadline) - new Date(a.deadline);
-                default:
-                    return 0;
+                default: return 0;
             }
         });
     };
@@ -84,127 +87,125 @@ function Projects() {
     );
 
     const projectByStatus = {
-        planned: [],
-        ongoing: [],
-        completed: [],
-        paused: [],
-        cancelled: [],
-        archived: [],
+        planned: [], ongoing: [], completed: [],
+        paused: [], cancelled: [], archived: [],
     };
+    filtered.forEach(p => projectByStatus[p.status]?.push(p));
 
-    filtered.forEach(project => {
-        projectByStatus[project.status]?.push(project);
-    });
+    if (loading) return (
+        <div className="min-h-screen flex items-center justify-center">
+            <span className="loading loading-spinner loading-lg" />
+        </div>
+    );
 
-    if (loading) {
-        return (
-            <div className="min-h-screen flex items-center justify-center">
-                <span className="loading loading-spinner loading-lg"></span>
-            </div>
-        );
-    }
-
-    if (error) {
-        return (
-            <div className="p-8">
-                <div className="alert alert-error">
-                    <span>Error: {error}</span>
-                </div>
-            </div>
-        );
-    }
+    if (error) return (
+        <div className="p-8">
+            <div className="alert alert-error"><span>Error: {error}</span></div>
+        </div>
+    );
 
     const emptyState = (
-        <div className="group flex flex-col items-center justify-center h-64 bg-secondary/25 hover:bg-primary/75 border-3 border-dashed border-secondary rounded-xl transition-color duration-150 ease-in-out p-4">
-            <i className="fas fa-folder-open text-6xl mb-4 transition-transform duration-200 group-hover:scale-110"></i>
+        <div className="group flex flex-col items-center justify-center h-64 hover:bg-primary/75 border-3 border-dashed border-secondary rounded-xl transition-color duration-150 ease-in-out p-4">
+            <i className="fas fa-folder-open text-6xl mb-4 transition-transform duration-200 group-hover:scale-110" />
             <p className="text-xl font-semibold">No projects found</p>
             <p className="text-base text-center">No projects match your search</p>
         </div>
     );
 
-    const activeSortLabel = sortOptions.find(o => o.value === sortBy)?.label;
+    const currentMonth = new Date().toLocaleString("default", { month: "long" });
+
+    const projectStats = [
+        {
+            title: "Active",
+            value: stats?.active ?? "—",
+            desc: "Planned & Ongoing",
+            icon: "fa-folder-open",
+            color: "text-primary",
+        },
+        {
+            title: "Completed",
+            value: stats?.completed_this_month ?? "—",
+            desc: "This Month",
+            icon: "fa-circle-check",
+            color: "text-success",
+        },
+        {
+            title: "Completion Rate",
+            value: stats ? `${stats.completion_rate}%` : "—",
+            desc: currentMonth,
+            icon: "fa-chart-pie",
+            color: "text-info",
+        },
+        {
+            title: "Due This Week",
+            value: stats?.due_this_week ?? "—",
+            desc: "Active Projects",
+            icon: "fa-calendar-week",
+            color: "text-warning",
+        },
+        {
+            title: "Due This Month",
+            value: stats?.due_this_month ?? "—",
+            desc: "Active Projects",
+            icon: "fa-calendar-days",
+            color: "text-accent",
+        },
+        {
+            title: "Overdue",
+            value: stats?.overdue ?? "—",
+            desc: "Needs Attention",
+            icon: "fa-circle-exclamation",
+            color: "text-red-600",
+        },
+    ];
 
     return (
-        <div>
-            <div className="bg-secondary/50 p-4 rounded-xl shadow-lg">
-                <div className="flex gap-2 mb-4">
-                    <label className="input input-lg flex-1">
-                        <i className="fas fa-search text-base-content/40" />
-                        <input
-                            type="text"
-                            placeholder="Search projects..."
-                            value={search}
-                            onChange={e => setSearch(e.target.value)}
-                        />
-                    </label>
-
-                    <div className="dropdown dropdown-end">
-                        <button
-                            tabIndex={0}
-                            className="btn btn-lg gap-2 w-40"
-                        >
-                            <i className="fas fa-arrow-up-wide-short" />
-                            <span className="text-sm">{activeSortLabel}</span>
-                        </button>
-                        <ul
-                            tabIndex={0}
-                            className="dropdown-content menu bg-base-100 rounded-xl shadow-lg border border-base-content/10 w-48 p-1 z-10"
-                        >
-                            {sortOptions.map(opt => (
-                                <li key={opt.value}>
-                                    <button
-                                        className={`flex items-center justify-between rounded-lg ${sortBy === opt.value ? "active font-semibold" : ""}`}
-                                        onClick={() => setSortBy(opt.value)}
-                                    >
-                                        {opt.label}
-                                        {sortBy === opt.value && <i className="fas fa-check text-xs" />}
-                                    </button>
-                                </li>
-                            ))}
-                        </ul>
-                    </div>
-
-                    <button className="btn btn-primary btn-lg gap-2">
-                        <i className="fas fa-plus" />
-                        <span className="font-bold">NEW</span>
-                    </button>
+        <div className="flex flex-col gap-4">
+            <div className="collapse collapse-arrow bg-secondary/75 text-secondary-content">
+                <input type="checkbox" defaultChecked />
+                <div className="collapse-title font-semibold">MONTHLY PROJECT OVERVIEW</div>
+                <div className="collapse-content p-0">
+                    <StatsDisplay stats={projectStats} />
                 </div>
+            </div>
+
+            <div className="bg-secondary/75 p-4 rounded-xl shadow-lg">
+                <SearchSortControls
+                    search={search}
+                    onSearchChange={setSearch}
+                    searchPlaceholder="Search projects..."
+                    sortBy={sortBy}
+                    onSortChange={setSortBy}
+                    sortOptions={SORT_OPTIONS}
+                    onNew={() => {/* open modal / navigate */ }}
+                    newLabel="NEW PROJECT"
+                />
 
                 <div className="tabs tabs-lift tabs-xl">
-                    <input type="radio" name="project_tabs" className="tab w-40 font-bold rounded-t-xl bg-base-100/50 checked:bg-base-100 me-1" aria-label="ALL" defaultChecked />
-                    <div className="tab-content bg-base-100 rounded-tl-none rounded-b-xl p-8">
-                        <TabContent projects={filtered} emptyState={emptyState} />
-                    </div>
-
-                    <input type="radio" name="project_tabs" className="tab w-40 font-bold rounded-t-xl bg-base-100/50 checked:bg-base-100 me-1" aria-label="PLANNED" />
-                    <div className="tab-content bg-base-100 rounded-tl-none rounded-b-xl p-8">
-                        <TabContent projects={projectByStatus.planned} emptyState={emptyState} />
-                    </div>
-
-                    <input type="radio" name="project_tabs" className="tab w-40 font-bold rounded-t-xl bg-base-100/50 checked:bg-base-100 me-1" aria-label="ONGOING" />
-                    <div className="tab-content bg-base-100 rounded-tl-none rounded-b-xl p-8">
-                        <TabContent projects={projectByStatus.ongoing} emptyState={emptyState} />
-                    </div>
-
-                    <input type="radio" name="project_tabs" className="tab w-40 font-bold rounded-t-xl bg-base-100/50 checked:bg-base-100 me-1" aria-label="COMPLETED" />
-                    <div className="tab-content bg-base-100 rounded-tl-none rounded-b-xl p-8">
-                        <TabContent projects={projectByStatus.completed} emptyState={emptyState} />
-                    </div>
-
-                    <input type="radio" name="project_tabs" className="tab w-40 font-bold rounded-t-xl bg-base-100/50 checked:bg-base-100 me-1" aria-label="PAUSED" />
-                    <div className="tab-content bg-base-100 rounded-tl-none rounded-b-xl p-8">
-                        <TabContent projects={projectByStatus.paused} emptyState={emptyState} />
-                    </div>
-
-                    <input type="radio" name="project_tabs" className="tab w-40 font-bold rounded-t-xl bg-base-100/50 checked:bg-base-100 me-1" aria-label="CANCELLED" />
-                    <div className="tab-content bg-base-100 rounded-tl-none rounded-b-xl p-8">
-                        <TabContent projects={projectByStatus.cancelled} emptyState={emptyState} />
-                    </div>
-
-                    <input type="radio" name="project_tabs" className="tab w-40 font-bold rounded-t-xl bg-base-100/50 checked:bg-base-100 me-1" aria-label="ARCHIVED" />
-                    <div className="tab-content bg-base-100 rounded-tl-none rounded-b-xl p-8">
-                        <TabContent projects={projectByStatus.archived} emptyState={emptyState} />
-                    </div>
+                    {[
+                        { label: "ALL", projects: filtered },
+                        { label: "PLANNED", projects: projectByStatus.planned },
+                        { label: "ONGOING", projects: projectByStatus.ongoing },
+                        { label: "COMPLETED", projects: projectByStatus.completed },
+                        { label: "PAUSED", projects: projectByStatus.paused },
+                        { label: "CANCELLED", projects: projectByStatus.cancelled },
+                        { label: "ARCHIVED", projects: projectByStatus.archived },
+                    ].map(({ label, projects }, i) => (
+                        <>
+                            <label key={`tab-${label}`} className="tab font-bold me-1 [&:not(:has(input:checked))]:bg-base-100/50 rounded-t-xl">
+                                <input
+                                    type="radio"
+                                    name="project_tabs"
+                                    defaultChecked={i === 0}
+                                />
+                                {label}
+                                <span className="badge badge-sm badge-info ms-2">{projects.length}</span>
+                            </label>
+                            <div key={`content-${label}`} className="tab-content bg-base-100 rounded-tl-none rounded-b-xl p-4">
+                                <TabContent projects={projects} emptyState={emptyState} />
+                            </div>
+                        </>
+                    ))}
                 </div>
             </div>
         </div>
