@@ -23,7 +23,7 @@ function ProjectCard({ project }) {
         });
 
     return (
-        <div className={`card flex-row bg-secondary/25 rounded-xl shadow-xl hover:bg-primary/75 hover:scale-102 hover:-translate-y-1 transform transition-all duration-150 ease-in-out cursor-pointer border-l-[6px] ${coverBorder[project.cover_image ?? 'default']}`}>
+        <div className={`card flex-row bg-base-100/75 sm:bg-secondary/25 rounded-xl shadow-xl hover:bg-primary/75 hover:scale-102 hover:-translate-y-1 transform transition-all duration-150 ease-in-out cursor-pointer border-l-[6px] ${coverBorder[project.cover_image ?? 'default']}`}>
             <div className="card-body p-4 flex flex-col gap-2">
 
                 {/* Row 1: Name + Type badge */}

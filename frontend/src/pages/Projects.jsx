@@ -14,8 +14,10 @@ const SORT_OPTIONS = [
     { value: "deadline_desc", label: "Deadline ↓" },
 ];
 
-function TabContent({ projects, emptyState }) {
-    const { page, setPage, totalPages, paginated } = usePagination(projects, 6);
+const TAB_KEYS = ["all", "planned", "ongoing", "completed", "paused", "cancelled", "archived"];
+
+function TabContent({ projects, emptyState, pageSize = 6 }) {
+    const { page, setPage, totalPages, paginated } = usePagination(projects, pageSize);
 
     if (projects.length === 0) return emptyState;
 
@@ -38,6 +40,7 @@ function Projects() {
     const [error, setError] = useState(null);
     const [search, setSearch] = useState("");
     const [sortBy, setSortBy] = useState("updated");
+    const [activeTab, setActiveTab] = useState("all");
 
     useEffect(() => {
         document.title = "MOMENTUM | Projects";
@@ -92,6 +95,18 @@ function Projects() {
     };
     filtered.forEach(p => projectByStatus[p.status]?.push(p));
 
+    const tabs = [
+        { key: "all", label: "ALL", projects: filtered },
+        { key: "planned", label: "PLANNED", projects: projectByStatus.planned },
+        { key: "ongoing", label: "ONGOING", projects: projectByStatus.ongoing },
+        { key: "completed", label: "COMPLETED", projects: projectByStatus.completed },
+        { key: "paused", label: "PAUSED", projects: projectByStatus.paused },
+        { key: "cancelled", label: "CANCELLED", projects: projectByStatus.cancelled },
+        { key: "archived", label: "ARCHIVED", projects: projectByStatus.archived },
+    ];
+
+    const activeProjects = tabs.find(t => t.key === activeTab)?.projects ?? [];
+
     if (loading) return (
         <div className="min-h-screen flex items-center justify-center">
             <span className="loading loading-spinner loading-lg" />
@@ -115,57 +130,46 @@ function Projects() {
     const currentMonth = new Date().toLocaleString("default", { month: "long" });
 
     const projectStats = [
-        {
-            title: "Active",
-            value: stats?.active ?? "—",
-            desc: "Planned & Ongoing",
-            icon: "fa-folder-open",
-            color: "text-primary",
-        },
-        {
-            title: "Completed",
-            value: stats?.completed_this_month ?? "—",
-            desc: "This Month",
-            icon: "fa-circle-check",
-            color: "text-success",
-        },
-        {
-            title: "Completion Rate",
-            value: stats ? `${stats.completion_rate}%` : "—",
-            desc: currentMonth,
-            icon: "fa-chart-pie",
-            color: "text-info",
-        },
-        {
-            title: "Due This Week",
-            value: stats?.due_this_week ?? "—",
-            desc: "Active Projects",
-            icon: "fa-calendar-week",
-            color: "text-warning",
-        },
-        {
-            title: "Due This Month",
-            value: stats?.due_this_month ?? "—",
-            desc: "Active Projects",
-            icon: "fa-calendar-days",
-            color: "text-accent",
-        },
-        {
-            title: "Overdue",
-            value: stats?.overdue ?? "—",
-            desc: "Needs Attention",
-            icon: "fa-circle-exclamation",
-            color: "text-red-600",
-        },
+        { title: "Active", value: stats?.active ?? "—", desc: "Planned & Ongoing", icon: "fa-folder-open", color: "text-primary" },
+        { title: "Completed", value: stats?.completed_this_month ?? "—", desc: "This Month", icon: "fa-circle-check", color: "text-success" },
+        { title: "Completion Rate", value: stats ? `${stats.completion_rate}%` : "—", desc: currentMonth, icon: "fa-chart-pie", color: "text-info" },
+        { title: "Due This Week", value: stats?.due_this_week ?? "—", desc: "Active Projects", icon: "fa-calendar-week", color: "text-warning" },
+        { title: "Due This Month", value: stats?.due_this_month ?? "—", desc: "Active Projects", icon: "fa-calendar-days", color: "text-accent" },
+        { title: "Overdue", value: stats?.overdue ?? "—", desc: "Needs Attention", icon: "fa-circle-exclamation", color: "text-red-600" },
     ];
 
     return (
         <div className="flex flex-col gap-4">
-            <div className="collapse collapse-arrow bg-secondary/75 text-secondary-content">
-                <input type="checkbox" defaultChecked />
-                <div className="collapse-title font-semibold">MONTHLY PROJECT OVERVIEW</div>
-                <div className="collapse-content p-0">
-                    <StatsDisplay stats={projectStats} />
+
+            {/* Mobile: stats button + modal */}
+            <div className="sm:hidden">
+                <button
+                    className="btn bg-secondary/75 text-secondary-content w-full"
+                    onClick={() => document.getElementById("stats_modal").showModal()}
+                >
+                    <i className="fas fa-chart-pie text-xs" />
+                    VIEW MONTHLY OVERVIEW
+                </button>
+                <dialog
+                    id="stats_modal"
+                    className="modal modal-bottom"
+                    onClick={e => e.target === e.currentTarget && e.currentTarget.close()}
+                >
+                    <div className="modal-box bg-secondary text-secondary-content">
+                        <h3 className="font-bold text-lg mb-4">Monthly Project Overview</h3>
+                        <StatsDisplay stats={projectStats} variant="grid" />
+                    </div>
+                </dialog>
+            </div>
+
+            {/* Desktop: collapse */}
+            <div className="hidden sm:block">
+                <div className="collapse collapse-arrow bg-secondary/75 text-secondary-content">
+                    <input type="checkbox" defaultChecked />
+                    <div className="collapse-title font-semibold">MONTHLY PROJECT OVERVIEW</div>
+                    <div className="collapse-content p-0">
+                        <StatsDisplay stats={projectStats} />
+                    </div>
                 </div>
             </div>
 
@@ -181,31 +185,46 @@ function Projects() {
                     newLabel="NEW PROJECT"
                 />
 
-                <div className="tabs tabs-lift tabs-xl">
-                    {[
-                        { label: "ALL", projects: filtered },
-                        { label: "PLANNED", projects: projectByStatus.planned },
-                        { label: "ONGOING", projects: projectByStatus.ongoing },
-                        { label: "COMPLETED", projects: projectByStatus.completed },
-                        { label: "PAUSED", projects: projectByStatus.paused },
-                        { label: "CANCELLED", projects: projectByStatus.cancelled },
-                        { label: "ARCHIVED", projects: projectByStatus.archived },
-                    ].map(({ label, projects }, i) => (
-                        <>
-                            <label key={`tab-${label}`} className="tab font-bold me-1 [&:not(:has(input:checked))]:bg-base-100/50 rounded-t-xl">
-                                <input
-                                    type="radio"
-                                    name="project_tabs"
-                                    defaultChecked={i === 0}
-                                />
-                                {label}
-                                <span className="badge badge-sm badge-info ms-2">{projects.length}</span>
-                            </label>
-                            <div key={`content-${label}`} className="tab-content bg-base-100 rounded-tl-none rounded-b-xl p-4">
-                                <TabContent projects={projects} emptyState={emptyState} />
-                            </div>
-                        </>
-                    ))}
+                {/* Mobile: select */}
+                <div className="sm:hidden mb-4">
+                    <select
+                        className="select select-bordered select-lg select-primary w-full font-bold"
+                        value={activeTab}
+                        onChange={e => setActiveTab(e.target.value)}
+                    >
+                        {tabs.map(({ key, label, projects }) => (
+                            <option key={key} value={key}>
+                                {label} ({projects.length})
+                            </option>
+                        ))}
+                    </select>
+                </div>
+
+                {/* Mobile: content */}
+                <div className="sm:hidden">
+                    <TabContent projects={activeProjects} emptyState={emptyState} pageSize={4} />
+                </div>
+
+                {/* Desktop: tabs */}
+                <div className="hidden sm:block">
+                    <div className="tabs tabs-lift tabs-xl">
+                        {tabs.map(({ key, label, projects }, i) => (
+                            <>
+                                <label key={`tab-${key}`} className="tab font-bold me-1 [&:not(:has(input:checked))]:bg-base-100/75 rounded-t-xl">
+                                    <input
+                                        type="radio"
+                                        name="project_tabs"
+                                        defaultChecked={i === 0}
+                                    />
+                                    {label}
+                                    <span className="badge badge-sm badge-info ms-2">{projects.length}</span>
+                                </label>
+                                <div key={`content-${key}`} className="tab-content bg-base-100 rounded-tl-none rounded-b-xl p-4">
+                                    <TabContent projects={projects} emptyState={emptyState} />
+                                </div>
+                            </>
+                        ))}
+                    </div>
                 </div>
             </div>
         </div>

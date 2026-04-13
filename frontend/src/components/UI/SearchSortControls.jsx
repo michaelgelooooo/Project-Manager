@@ -9,22 +9,20 @@ function SearchSortControls({
     newLabel = "NEW",
 }) {
     const activeSortLabel = sortOptions.find(o => o.value === sortBy)?.label;
-
     return (
         <div className="flex gap-2 mb-4 items-center">
-
-            <label className="flex flex-1 items-center gap-2 h-12 px-4 bg-base-100 rounded-xl focus-within:border-primary focus-within:ring-2 focus-within:ring-primary transition-all">
-                <i className="fas fa-search text-base-content/30 text-sm" />
+            <label className="flex flex-1 items-center gap-2 h-12 px-4 bg-base-100 rounded-xl border border-primary focus-within:border-primary focus-within:ring-2 focus-within:ring-primary transition-all min-w-0">
+                <i className="fas fa-search text-base-content/30 text-sm shrink-0" />
                 <input
                     type="text"
                     placeholder={searchPlaceholder}
-                    className="flex-1 bg-transparent outline-none text-sm"
+                    className="flex-1 bg-transparent outline-none text-sm min-w-0"
                     value={search}
                     onChange={e => onSearchChange(e.target.value)}
                 />
                 {search && (
                     <button
-                        className="text-base-content/30 hover:text-base-content/60 transition-colors"
+                        className="text-base-content/30 hover:text-base-content/60 transition-colors shrink-0"
                         onClick={() => onSearchChange("")}
                     >
                         <i className="fas fa-times text-xs" />
@@ -33,14 +31,16 @@ function SearchSortControls({
             </label>
 
             {sortOptions.length > 0 && (
-                <div className="dropdown dropdown-end">
+                <div className="dropdown dropdown-end shrink-0">
                     <button
                         tabIndex={0}
-                        className="flex items-center gap-2 h-12 px-4 bg-base-100 border border-base-content/20 rounded-xl text-sm font-medium hover:bg-base-200 hover:border-base-content/30 transition-all"
+                        className="btn h-12 min-h-0 px-4 text-sm font-medium rounded-xl"
                     >
-                        <i className="fas fa-arrow-down-wide-short text-base-content/50 text-xs" />
-                        <span>{activeSortLabel}</span>
-                        <i className="fas fa-chevron-down text-base-content/30 text-[10px]" />
+                        <i className="fas fa-arrow-down-wide-short text-xs" />
+                        <span className="hidden sm:inline">
+                            {activeSortLabel}
+                            <i className="fas fa-chevron-down text-base-content/50 text-[10px] ml-1" />
+                        </span>
                     </button>
                     <ul
                         tabIndex={0}
@@ -63,14 +63,13 @@ function SearchSortControls({
 
             {onNew && (
                 <button
-                    className="flex items-center gap-2 h-12 px-4 bg-primary hover:bg-primary-focus rounded-xl text-primary-content text-sm font-semibold transition-all active:scale-[0.98]"
+                    className="btn btn-primary h-12 min-h-0 px-4 text-sm font-semibold rounded-xl shrink-0"
                     onClick={onNew}
                 >
                     <i className="fas fa-plus text-xs" />
-                    {newLabel}
+                    <span className="hidden sm:inline">{newLabel}</span>
                 </button>
             )}
-
         </div>
     );
 }
