@@ -105,6 +105,7 @@ export const projectsAPI = {
     getAll: () => api.get('/projects/'),
     getStats: () => api.get('/projects/stats/'),
     getById: (id) => api.get(`/projects/${id}/`),
+    getBySlug: (slug) => api.get(`/projects/${slug}`),
     create: (projectData) => api.post('/projects/', projectData),
     update: (id, projectData) => api.put(`/projects/${id}/`, projectData),
     partialUpdate: (id, projectData) => api.patch(`/projects/${id}/`, projectData),

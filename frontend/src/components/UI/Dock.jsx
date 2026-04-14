@@ -23,8 +23,8 @@ function Dock() {
                     to={to}
                     className={isActive(prefix) ? 'dock-active text-secondary' : 'text-secondary/50'}
                 >
-                    <i className={`fas ${icon} text-xl`} />
-                    <span className="dock-label">{name}</span>
+                    <i className={`fas ${icon}`} />
+                    <span className="dock-label text-[10px]">{name}</span>
                 </Link>
             ))}
         </div>

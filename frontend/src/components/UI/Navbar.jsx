@@ -25,7 +25,7 @@ function Navbar() {
     };
 
     return (
-        <div className="navbar bg-base-100 px-8 py-4 sm:px-16 sm:py-8 fixed top-0 left-0 z-50">
+        <div className="navbar bg-base-100 px-4 sm:px-16 py-4 fixed top-0 left-0 z-50">
 
             <div className="navbar-start">
                 <Link

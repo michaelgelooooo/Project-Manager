@@ -16,7 +16,7 @@ const SORT_OPTIONS = [
 
 const TAB_KEYS = ["all", "planned", "ongoing", "completed", "paused", "cancelled", "archived"];
 
-function TabContent({ projects, emptyState, pageSize = 6 }) {
+function TabContent({ projects, emptyState, pageSize = 8 }) {
     const { page, setPage, totalPages, paginated } = usePagination(projects, pageSize);
 
     if (projects.length === 0) return emptyState;
@@ -210,14 +210,14 @@ function Projects() {
                     <div className="tabs tabs-lift tabs-xl">
                         {tabs.map(({ key, label, projects }, i) => (
                             <>
-                                <label key={`tab-${key}`} className="tab font-bold me-1 [&:not(:has(input:checked))]:bg-base-100/75 rounded-t-xl">
+                                <label key={`tab-${key}`} className="tab font-bold me-1 [&:not(:has(input:checked))]:bg-base-100/75 rounded-t-xl w-45">
                                     <input
                                         type="radio"
                                         name="project_tabs"
                                         defaultChecked={i === 0}
                                     />
                                     {label}
-                                    <span className="badge badge-sm badge-info ms-2">{projects.length}</span>
+                                    <span className="badge badge-xs badge-info ms-2">{projects.length}</span>
                                 </label>
                                 <div key={`content-${key}`} className="tab-content bg-base-100 rounded-tl-none rounded-b-xl p-4">
                                     <TabContent projects={projects} emptyState={emptyState} />

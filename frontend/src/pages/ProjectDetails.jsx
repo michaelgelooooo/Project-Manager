@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { useParams } from 'react-router-dom';
+import { Link, useParams } from 'react-router-dom';
 import { projectsAPI } from "../services/api";
 
 const STATUS_BADGES = {
@@ -38,7 +38,7 @@ function MetaCard({ icon, label, dateStr }) {
 }
 
 function ProjectDetails() {
-    const { id } = useParams();
+    const { slug } = useParams();
     const [data, setData] = useState(null);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
@@ -46,7 +46,7 @@ function ProjectDetails() {
     useEffect(() => {
         const fetchProjectDetails = async () => {
             try {
-                const response = await projectsAPI.getById(id);
+                const response = await projectsAPI.getBySlug(slug);
                 setData(response.data);
                 document.title = `MOMENTUM | ${response.data.project_name}`;
             } catch (err) {
@@ -56,7 +56,7 @@ function ProjectDetails() {
             }
         };
         fetchProjectDetails();
-    }, [id]);
+    }, [slug]);
 
     if (loading) return (
         <div className="min-h-screen flex items-center justify-center">
@@ -72,6 +72,30 @@ function ProjectDetails() {
 
     return (
         <div>
+            <div className='border border-secondary px-4 rounded-lg w-full mb-4'>
+                <div className="breadcrumbs w-full text-xs sm:text-sm">
+                    <ul>
+                        <li className='text-secondary'>
+                            <span className='hidden sm:inline'>
+                                <i className='fas fa-tv me-2'></i>
+                            </span>
+                            <Link to="/">Dashboard</Link>
+                        </li>
+                        <li className='text-secondary'>
+                            <span className='hidden sm:inline'>
+                                <i className='fas fa-folder-open me-2'></i>
+                            </span>
+                            <Link to="/projects/">Projects</Link>
+                        </li>
+                        <li>
+                            <span className='hidden sm:inline'>
+                                <i className='fas fa-file me-2'></i>
+                            </span>
+                            {data.project_name}
+                        </li>
+                    </ul>
+                </div>
+            </div>
 
             {/* Hero */}
             <div className="relative h-48 sm:h-96 w-full">
