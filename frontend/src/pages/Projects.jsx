@@ -1,6 +1,8 @@
 import { useEffect, useState } from "react";
+import { useNavigate } from 'react-router-dom';
 import { projectsAPI } from "../services/api";
 import ProjectCard from "../components/Projects/ProjectCard";
+import ProjectForm from "../components/Projects/ProjectForm";
 import Pagination from "../components/UI/Pagination";
 import SearchSortControls from "../components/UI/SearchSortControls";
 import StatsDisplay from "../components/UI/StatsDisplay";
@@ -41,25 +43,25 @@ function Projects() {
     const [search, setSearch] = useState("");
     const [sortBy, setSortBy] = useState("updated");
     const [activeTab, setActiveTab] = useState("all");
+    const navigate = useNavigate();
+
+    const fetchData = async () => {
+        try {
+            const [projectsRes, statsRes] = await Promise.all([
+                projectsAPI.getAll(),
+                projectsAPI.getStats(),
+            ]);
+            setData(projectsRes.data);
+            setStats(statsRes.data);
+            setLoading(false);
+        } catch (err) {
+            setError(err.message);
+            setLoading(false);
+        }
+    };
 
     useEffect(() => {
         document.title = "MOMENTUM | Projects";
-
-        const fetchData = async () => {
-            try {
-                const [projectsRes, statsRes] = await Promise.all([
-                    projectsAPI.getAll(),
-                    projectsAPI.getStats(),
-                ]);
-                setData(projectsRes.data);
-                setStats(statsRes.data);
-                setLoading(false);
-            } catch (err) {
-                setError(err.message);
-                setLoading(false);
-            }
-        };
-
         fetchData();
     }, []);
 
@@ -181,7 +183,7 @@ function Projects() {
                     sortBy={sortBy}
                     onSortChange={setSortBy}
                     sortOptions={SORT_OPTIONS}
-                    onNew={() => {/* open modal / navigate */ }}
+                    onNew={() => document.getElementById('project_form').showModal()}
                     newLabel="NEW PROJECT"
                 />
 
@@ -227,6 +229,11 @@ function Projects() {
                     </div>
                 </div>
             </div>
+
+            <ProjectForm
+                header="Create Project"
+                onSuccess={(slug) => navigate(`/projects/${slug}/`)}>
+            </ProjectForm>
         </div>
     );
 }

@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
-import { Link, useParams } from 'react-router-dom';
+import { Link, useParams, useNavigate } from 'react-router-dom';
 import { projectsAPI } from "../services/api";
+import ProjectForm from "../components/Projects/ProjectForm";
 
 const STATUS_BADGES = {
     planned: "badge-info",
@@ -42,21 +43,32 @@ function ProjectDetails() {
     const [data, setData] = useState(null);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
+    const navigate = useNavigate()
+
+    const fetchProjectDetails = async () => {    // lift out of useEffect
+        try {
+            const response = await projectsAPI.getBySlug(slug);
+            setData(response.data);
+            document.title = `MOMENTUM | ${response.data.project_name}`;
+        } catch (err) {
+            setError(err.message);
+        } finally {
+            setLoading(false);
+        }
+    };
 
     useEffect(() => {
-        const fetchProjectDetails = async () => {
-            try {
-                const response = await projectsAPI.getBySlug(slug);
-                setData(response.data);
-                document.title = `MOMENTUM | ${response.data.project_name}`;
-            } catch (err) {
-                setError(err.message);
-            } finally {
-                setLoading(false);
-            }
-        };
         fetchProjectDetails();
     }, [slug]);
+
+    const handleDelete = async () => {
+        try {
+            await projectsAPI.delete(data.slug);
+            navigate("/projects/");
+        } catch (err) {
+            console.error(err.response?.data);
+        }
+    };
 
     if (loading) return (
         <div className="min-h-screen flex items-center justify-center">
@@ -71,7 +83,7 @@ function ProjectDetails() {
     );
 
     return (
-        <div>
+        <>
             <div className='border border-secondary px-4 rounded-lg w-full mb-4'>
                 <div className="breadcrumbs w-full text-xs sm:text-sm">
                     <ul>
@@ -126,9 +138,23 @@ function ProjectDetails() {
                                             {data.project_name}
                                         </h1>
                                     </div>
-                                    <span className={`badge badge-md sm:badge-lg font-semibold ${STATUS_BADGES[data.status] ?? 'badge-ghost'}`}>
-                                        {data.status.charAt(0).toUpperCase() + data.status.slice(1)}
-                                    </span>
+                                    <div className="flex items-center gap-2 flex-wrap">
+                                        <span className={`badge badge-md sm:badge-lg font-semibold ${STATUS_BADGES[data.status] ?? 'badge-ghost'}`}>
+                                            {data.status.charAt(0).toUpperCase() + data.status.slice(1)}
+                                        </span>
+                                        <button
+                                            className="btn btn-sm btn-secondary"
+                                            onClick={() => document.getElementById("project_form").showModal()}
+                                        >
+                                            <i className="fas fa-pen-to-square text-xs" /> EDIT
+                                        </button>
+                                        <button
+                                            className="btn btn-sm btn-error"
+                                            onClick={() => document.getElementById("delete_modal").showModal()}
+                                        >
+                                            <i className="fas fa-trash text-xs" /> DELETE
+                                        </button>
+                                    </div>
                                 </div>
 
                                 <div className="divider my-2 before:bg-neutral-content after:bg-neutral-content" />
@@ -167,7 +193,34 @@ function ProjectDetails() {
                     </div>
                 </div>
             </div>
-        </div>
+
+            <ProjectForm
+                header="Update Project"
+                project={data}
+                onSuccess={fetchProjectDetails}
+            />
+
+            {/* Delete confirmation */}
+            <dialog id="delete_modal" className="modal modal-bottom sm:modal-middle">
+                <div className="modal-box bg-neutral">
+                    <h3 className="font-bold text-lg">Delete Project?</h3>
+                    <p className="text-sm text-base-content/60 mt-1">
+                        <span className="font-semibold text-base-content">{data.project_name}</span> will be permanently deleted. This cannot be undone.
+                    </p>
+                    <div className="modal-action">
+                        <form method="dialog">
+                            <button className="btn btn-ghost">CANCEL</button>
+                        </form>
+                        <button className="btn btn-error" onClick={handleDelete}>
+                            <i className="fas fa-trash text-xs" /> DELETE
+                        </button>
+                    </div>
+                </div>
+                <form method="dialog" className="modal-backdrop">
+                    <button>close</button>
+                </form>
+            </dialog>
+        </>
     );
 }
 
