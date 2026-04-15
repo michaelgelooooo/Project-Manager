@@ -10,13 +10,13 @@ import usePagination from "../hooks/usePagination";
 
 const SORT_OPTIONS = [
     { value: "updated", label: "Recent" },
-    { value: "name_asc", label: "Name ↑" },
-    { value: "name_desc", label: "Name ↓" },
-    { value: "deadline_asc", label: "Deadline ↑" },
-    { value: "deadline_desc", label: "Deadline ↓" },
+    { value: "deadline_asc", label: "Deadline (Asc)" },
+    { value: "deadline_desc", label: "Deadline (Desc)" },
+    { value: "name_asc", label: "Name (A→Z)" },
+    { value: "name_desc", label: "Name (Z→A)" },
+    { value: "type_asc", label: "Type (A→Z)" },
+    { value: "type_desc", label: "Type (Z→A)" },
 ];
-
-const TAB_KEYS = ["all", "planned", "ongoing", "completed", "paused", "cancelled", "archived"];
 
 function TabContent({ projects, emptyState, pageSize = 8 }) {
     const { page, setPage, totalPages, paginated } = usePagination(projects, pageSize);
@@ -25,7 +25,7 @@ function TabContent({ projects, emptyState, pageSize = 8 }) {
 
     return (
         <>
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:px-2">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 sm:px-2 mb-4 ">
                 {paginated.map(project => (
                     <ProjectCard key={project.id} project={project} />
                 ))}
@@ -71,6 +71,8 @@ function Projects() {
                 case "updated": return new Date(b.updated_at) - new Date(a.updated_at);
                 case "name_asc": return a.project_name.localeCompare(b.project_name);
                 case "name_desc": return b.project_name.localeCompare(a.project_name);
+                case "type_asc": return a.project_type.localeCompare(b.project_type);
+                case "type_desc": return b.project_type.localeCompare(a.project_type);
                 case "deadline_asc":
                     if (!a.deadline) return 1;
                     if (!b.deadline) return -1;
@@ -109,6 +111,15 @@ function Projects() {
 
     const activeProjects = tabs.find(t => t.key === activeTab)?.projects ?? [];
 
+    const projectStats = [
+        { title: "Active", value: stats?.active ?? "—", desc: "Planned & Ongoing", icon: "fa-folder-open", color: "text-primary" },
+        { title: "Completed", value: stats?.completed ?? "—", desc: "All Time", icon: "fa-circle-check", color: "text-success" },
+        { title: "Completion Rate", value: stats ? `${stats.completion_rate}%` : "—", desc: "All Time", icon: "fa-chart-pie", color: "text-info" },
+        { title: "Overdue", value: stats?.overdue ?? "—", desc: "Needs Attention", icon: "fa-circle-exclamation", color: "text-red-600" },
+        { title: "Due This Week", value: stats?.due_this_week ?? "—", desc: "Active Projects", icon: "fa-calendar-week", color: "text-warning" },
+        { title: "Due This Month", value: stats?.due_this_month ?? "—", desc: "Active Projects", icon: "fa-calendar-days", color: "text-accent" },
+    ];
+
     if (loading) return (
         <div className="min-h-screen flex items-center justify-center">
             <span className="loading loading-spinner loading-lg" />
@@ -122,60 +133,47 @@ function Projects() {
     );
 
     const emptyState = (
-        <div className="group flex flex-col items-center justify-center h-64 hover:bg-primary/75 border-3 border-dashed border-secondary rounded-xl transition-color duration-150 ease-in-out p-4">
+        <div className="group flex flex-col items-center justify-center h-64 hover:bg-primary/75 border-3 border-dashed border-secondary rounded-lg transition-color duration-150 ease-in-out p-4">
             <i className="fas fa-folder-open text-6xl mb-4 transition-transform duration-200 group-hover:scale-110" />
             <p className="text-xl font-semibold">No projects found</p>
             <p className="text-base text-center">No projects match your search</p>
         </div>
     );
 
-    const currentMonth = new Date().toLocaleString("default", { month: "long" });
-
-    const projectStats = [
-        { title: "Active", value: stats?.active ?? "—", desc: "Planned & Ongoing", icon: "fa-folder-open", color: "text-primary" },
-        { title: "Completed", value: stats?.completed_this_month ?? "—", desc: "This Month", icon: "fa-circle-check", color: "text-success" },
-        { title: "Completion Rate", value: stats ? `${stats.completion_rate}%` : "—", desc: currentMonth, icon: "fa-chart-pie", color: "text-info" },
-        { title: "Due This Week", value: stats?.due_this_week ?? "—", desc: "Active Projects", icon: "fa-calendar-week", color: "text-warning" },
-        { title: "Due This Month", value: stats?.due_this_month ?? "—", desc: "Active Projects", icon: "fa-calendar-days", color: "text-accent" },
-        { title: "Overdue", value: stats?.overdue ?? "—", desc: "Needs Attention", icon: "fa-circle-exclamation", color: "text-red-600" },
-    ];
-
     return (
-        <div className="flex flex-col gap-4">
-
-            {/* Mobile: stats button + modal */}
-            <div className="sm:hidden">
+        <>
+            <div className="sm:hidden mb-4">
                 <button
                     className="btn bg-secondary/75 text-secondary-content w-full"
                     onClick={() => document.getElementById("stats_modal").showModal()}
                 >
                     <i className="fas fa-chart-pie text-xs" />
-                    VIEW MONTHLY OVERVIEW
+                    VIEW PROJECT STATISTICS
                 </button>
                 <dialog
                     id="stats_modal"
-                    className="modal modal-bottom"
+                    className="modal modal-top"
                     onClick={e => e.target === e.currentTarget && e.currentTarget.close()}
                 >
                     <div className="modal-box bg-secondary text-secondary-content">
-                        <h3 className="font-bold text-lg mb-4">Monthly Project Overview</h3>
+                        <h3 className="font-bold text-lg mb-4">PROJECT STATISTICS</h3>
                         <StatsDisplay stats={projectStats} variant="grid" />
                     </div>
                 </dialog>
             </div>
 
             {/* Desktop: collapse */}
-            <div className="hidden sm:block">
-                <div className="collapse collapse-arrow bg-secondary/75 text-secondary-content">
+            <div className="hidden sm:block mb-4">
+                <div className="collapse collapse-arrow bg-secondary/75 text-secondary-content rounded-lg">
                     <input type="checkbox" defaultChecked />
-                    <div className="collapse-title font-semibold">MONTHLY PROJECT OVERVIEW</div>
+                    <div className="collapse-title font-semibold text-2xl p-4">PROJECT STATISTICS</div>
                     <div className="collapse-content p-0">
                         <StatsDisplay stats={projectStats} />
                     </div>
                 </div>
             </div>
 
-            <div className="bg-secondary/75 p-4 rounded-xl shadow-lg">
+            <div className="bg-secondary/75 p-4 rounded-lg shadow-lg">
                 <SearchSortControls
                     search={search}
                     onSearchChange={setSearch}
@@ -212,7 +210,7 @@ function Projects() {
                     <div className="tabs tabs-lift tabs-xl">
                         {tabs.map(({ key, label, projects }, i) => (
                             <>
-                                <label key={`tab-${key}`} className="tab font-bold me-1 [&:not(:has(input:checked))]:bg-base-100/75 rounded-t-xl w-45">
+                                <label key={`tab-${key}`} className="tab font-bold me-1 [&:not(:has(input:checked))]:bg-base-100/75 rounded-t-lg w-45">
                                     <input
                                         type="radio"
                                         name="project_tabs"
@@ -221,7 +219,7 @@ function Projects() {
                                     {label}
                                     <span className="badge badge-xs badge-info ms-2">{projects.length}</span>
                                 </label>
-                                <div key={`content-${key}`} className="tab-content bg-base-100 rounded-tl-none rounded-b-xl p-4">
+                                <div key={`content-${key}`} className="tab-content bg-base-100 rounded-tl-none rounded-tr-lg rounded-b-lg p-4">
                                     <TabContent projects={projects} emptyState={emptyState} />
                                 </div>
                             </>
@@ -234,7 +232,7 @@ function Projects() {
                 header="Create Project"
                 onSuccess={(slug) => navigate(`/projects/${slug}/`)}>
             </ProjectForm>
-        </div>
+        </>
     );
 }
 

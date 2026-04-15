@@ -45,11 +45,6 @@ class Task(models.Model):
     updated_at = models.DateTimeField(auto_now=True)
 
     class Meta:
-        ordering = [
-            "due_date",
-            "-priority",
-            "-created_at",
-        ]
         verbose_name = "Task"
         verbose_name_plural = "Tasks"
 

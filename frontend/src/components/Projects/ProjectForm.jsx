@@ -171,7 +171,7 @@ function ProjectForm({ header, project = null, onSuccess }) {
                             <label className="label">Cover Image</label>
                             <span className="text-sm text-base-content/50 capitalize">{form.cover_image}</span>
                         </div>
-                        <div className="relative w-full h-28 rounded-xl overflow-hidden">
+                        <div className="relative w-full h-28 rounded-lg overflow-hidden">
                             <img
                                 src={`/covers/${form.cover_image}.jpg`}
                                 alt={form.cover_image}

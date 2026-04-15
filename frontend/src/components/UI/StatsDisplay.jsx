@@ -3,7 +3,7 @@ function StatsDisplay({ stats, variant = "horizontal" }) {
         return (
             <div className="grid grid-cols-2 gap-3 text-white">
                 {stats.map(({ title, value, desc, icon, color, valueColor }) => (
-                    <div key={title} className="bg-base-200 rounded-xl p-4 flex flex-col gap-1">
+                    <div key={title} className="bg-base-200 rounded-lg p-4 shadow-lg flex flex-col gap-1">
                         <div className="flex items-center justify-between">
                             <span className="text-xs font-semibold text-base-content uppercase tracking-wide">{title}</span>
                             <i className={`fas ${icon} text-sm ${color}`} />

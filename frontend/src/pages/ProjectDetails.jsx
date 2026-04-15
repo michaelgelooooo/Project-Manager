@@ -28,7 +28,7 @@ function formatTime(dateStr) {
 
 function MetaCard({ icon, label, dateStr }) {
     return (
-        <div className="bg-base-100 rounded-xl p-4 space-y-1">
+        <div className="bg-base-100 rounded-lg p-4 space-y-1">
             <p className="text-xs text-base-content uppercase tracking-wide">
                 <i className={`fa-regular ${icon} me-2`} />{label}
             </p>
@@ -114,9 +114,9 @@ function ProjectDetails() {
                 <img
                     src={`/covers/${data.cover_image ?? 'default'}.jpg`}
                     alt={data.project_name}
-                    className="w-full h-full object-cover rounded-xl sm:rounded-4xl"
+                    className="w-full h-full object-cover rounded-lg sm:rounded-4xl"
                 />
-                <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-black/30 to-transparent rounded-xl sm:rounded-4xl" />
+                <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-black/30 to-transparent rounded-lg sm:rounded-4xl" />
 
                 {/* Desktop: full buttons — top-right */}
                 <div className="hidden sm:flex absolute top-4 right-4 gap-2 z-10">
@@ -190,7 +190,7 @@ function ProjectDetails() {
 
                             {/* Deadline */}
                             {data.deadline && (
-                                <div className="bg-secondary rounded-xl p-4 flex items-center justify-between gap-4 flex-wrap">
+                                <div className="bg-secondary rounded-lg p-4 flex items-center justify-between gap-4 flex-wrap">
                                     <div>
                                         <p className="text-xs uppercase tracking-widest text-secondary-content">
                                             Deadline

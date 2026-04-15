@@ -11,10 +11,10 @@ function TaskCard({ task }) {
     return (
         <div className="relative hover:scale-102 hover:-translate-y-1 transform transition-all duration-150 ease-in-out cursor-pointer">
             {/* Background card */}
-            <div className="absolute inset-0 bg-base-100 rounded-xl shadow-xl"></div>
+            <div className="absolute inset-0 bg-base-100 rounded-lg shadow-xl"></div>
 
             {/* Foreground card */}
-            <div className="relative card bg-secondary/25 rounded-xl hover:bg-primary/75">
+            <div className="relative card bg-secondary/25 rounded-lg hover:bg-primary/75">
                 <div className="card-body p-4">
                     <div className="flex items-center justify-between">
                         <h3 className="card-title text-lg">{task.task_name}</h3>

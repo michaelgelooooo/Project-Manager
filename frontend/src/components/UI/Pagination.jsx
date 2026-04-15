@@ -9,7 +9,7 @@ function Pagination({ page, totalPages, setPage }) {
     };
 
     return (
-        <div className="flex justify-center mt-4">
+        <div className="flex justify-center">
             <div className="join">
 
                 <button

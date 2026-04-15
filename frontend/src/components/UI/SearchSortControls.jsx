@@ -11,7 +11,7 @@ function SearchSortControls({
     const activeSortLabel = sortOptions.find(o => o.value === sortBy)?.label;
     return (
         <div className="flex gap-2 mb-4 items-center">
-            <label className="flex flex-1 items-center gap-2 h-12 px-4 bg-base-100 rounded-xl border border-primary focus-within:border-primary focus-within:ring-2 focus-within:ring-primary transition-all min-w-0">
+            <label className="flex flex-1 items-center gap-2 h-12 px-4 bg-base-100 rounded-lg border border-primary focus-within:border-primary focus-within:ring-2 focus-within:ring-primary transition-all min-w-0">
                 <i className="fas fa-search text-base-content/30 text-sm shrink-0" />
                 <input
                     type="text"
@@ -34,7 +34,7 @@ function SearchSortControls({
                 <div className="dropdown dropdown-end shrink-0">
                     <button
                         tabIndex={0}
-                        className="btn h-12 min-h-0 px-4 text-sm font-medium rounded-xl"
+                        className="btn h-12 min-h-0 px-4 text-sm font-medium rounded-lg"
                     >
                         <i className="fas fa-arrow-down-wide-short text-xs" />
                         <span className="hidden sm:inline">
@@ -44,7 +44,7 @@ function SearchSortControls({
                     </button>
                     <ul
                         tabIndex={0}
-                        className="dropdown-content menu bg-base-100 rounded-xl shadow-lg border border-base-content/10 w-44 p-1 z-10 mt-1"
+                        className="dropdown-content menu bg-base-100 rounded-lg shadow-lg border border-base-content/10 w-44 p-1 z-10 mt-1"
                     >
                         {sortOptions.map(opt => (
                             <li key={opt.value}>
@@ -63,7 +63,7 @@ function SearchSortControls({
 
             {onNew && (
                 <button
-                    className="btn btn-primary h-12 min-h-0 px-4 text-sm font-semibold rounded-xl shrink-0"
+                    className="btn btn-primary h-12 min-h-0 px-4 text-sm font-semibold rounded-lg shrink-0"
                     onClick={onNew}
                 >
                     <i className="fas fa-plus text-xs" />

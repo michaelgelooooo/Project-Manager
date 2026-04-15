@@ -17,14 +17,20 @@ function ProjectCard({ project }) {
         <Link to={`/projects/${project.slug}`} className="block">
             <div className="relative h-full hover:scale-102 hover:-translate-y-1 transform transition-all duration-150 ease-in-out cursor-pointer">
                 {/* Background card */}
-                <div className="absolute inset-0 bg-base-100 rounded-xl shadow-xl"></div>
+                <div className="absolute inset-0 bg-base-100 rounded-lg shadow-xl"></div>
 
                 {/* Foreground card */}
-                <div className="relative card h-full bg-secondary/25 rounded-xl hover:bg-primary/75 flex flex-row sm:flex-col">
+                <div className="relative card h-full bg-secondary/25 rounded-lg hover:bg-primary/75 flex flex-row sm:flex-col">
 
-                    {/* Cover image — thumbnail strip on mobile, full width on sm+ */}
+                    {/* Cover image — thumbnail strip on mobile */}
                     <div
-                        className="w-32 shrink-0 rounded-l-xl sm:rounded-l-none sm:rounded-t-xl sm:w-full sm:aspect-video bg-cover bg-center"
+                        className="w-32 shrink-0 rounded-l-lg bg-cover bg-center sm:hidden"
+                        style={{ backgroundImage: `url(/covers/${project.cover_image ?? 'default'}.jpg)` }}
+                    />
+
+                    {/* Cover image — full width on sm+ */}
+                    <div
+                        className="hidden w-full aspect-video rounded-t-lg bg-cover bg-center sm:block"
                         style={{ backgroundImage: `url(/covers/${project.cover_image ?? 'default'}.jpg)` }}
                     />
 

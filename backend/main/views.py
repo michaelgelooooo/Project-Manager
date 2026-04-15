@@ -1,6 +1,7 @@
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework.permissions import IsAuthenticated
+from django.db.models import Case, When, Value, IntegerField
 from projects.models import Project
 from tasks.models import Task
 from resources.models import Resource
@@ -16,18 +17,24 @@ class DashboardView(APIView):
         user = request.user
 
         # Get 6 most urgent projects
-        urgent_projects = []
         urgent_projects = Project.objects.filter(
             user=user, status__in=["planned", "ongoing"], deadline__isnull=False
         ).order_by("deadline")[:6]
-        # urgent_projects = Project.objects.all()
 
         # Get 5 most urgent tasks (uses model's default ordering)
         urgent_tasks = Task.objects.filter(
             project__user=user,
             project__status__in=["planned", "ongoing"],
             status__in=["planned", "ongoing"],
-        )[:5]
+            due_date__isnull=False,
+        ).annotate(
+            priority_order=Case(
+                When(priority="high", then=Value(1)),
+                When(priority="medium", then=Value(2)),
+                When(priority="low", then=Value(3)),
+                output_field=IntegerField(),
+            )
+        ).order_by("priority_order", "due_date")[:5]
 
         # Get 5 recently updated resources
         recent_resources = Resource.objects.filter(

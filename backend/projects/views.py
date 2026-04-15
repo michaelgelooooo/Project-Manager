@@ -22,25 +22,21 @@ class ProjectViewSet(viewsets.ModelViewSet):
     @action(detail=False, methods=["get"], url_path="stats")
     def stats(self, request):
         today = date.today()
-        start_of_month = today.replace(day=1)
         start_of_week = today - timedelta(days=(today.weekday() + 1) % 7)
-
+        end_of_week = start_of_week + timedelta(days=6)
         if today.month == 12:
             end_of_month = today.replace(month=12, day=31)
         else:
             end_of_month = today.replace(month=today.month + 1, day=1) - timedelta(days=1)
 
-        end_of_week = start_of_week + timedelta(days=6)
-
         projects = Project.objects.filter(user=request.user)
 
         agg = projects.aggregate(
-            active=Count("id", filter=Q(
+            active=Count("id", filter=Q(status__in=["planned", "ongoing"])),
+            completed=Count("id", filter=Q(status="completed")),
+            overdue=Count("id", filter=Q(
+                deadline__lt=today,
                 status__in=["planned", "ongoing"]
-            )),
-            completed_this_month=Count("id", filter=Q(
-                status="completed",
-                updated_at__date__gte=start_of_month
             )),
             due_this_week=Count("id", filter=Q(
                 deadline__gte=start_of_week,
@@ -48,19 +44,13 @@ class ProjectViewSet(viewsets.ModelViewSet):
                 status__in=["planned", "ongoing"]
             )),
             due_this_month=Count("id", filter=Q(
-                deadline__gte=start_of_month,
+                deadline__gte=today.replace(day=1),
                 deadline__lte=end_of_month,
-                status__in=["planned", "ongoing"]
-            )),
-            overdue=Count("id", filter=Q(
-                deadline__lt=today,
                 status__in=["planned", "ongoing"]
             )),
         )
 
-        agg["completion_rate"] = (
-            round(agg["completed_this_month"] / agg["active"] * 100)
-            if agg["active"] else 0
-        )
+        total = agg["active"] + agg["completed"]
+        agg["completion_rate"] = round(agg["completed"] / total * 100) if total else 0
 
         return Response(agg, status=status.HTTP_200_OK)
