@@ -16,7 +16,7 @@ function Dock() {
     };
 
     return (
-        <div className="dock sm:hidden bg-base-100 border-none">
+        <div className="dock sm:hidden bg-base-300 border-none">
             {tabs.map(({ name, to, prefix, icon }) => (
                 <Link
                     key={to}

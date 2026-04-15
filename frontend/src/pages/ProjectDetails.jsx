@@ -117,9 +117,47 @@ function ProjectDetails() {
                     className="w-full h-full object-cover rounded-xl sm:rounded-4xl"
                 />
                 <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-black/30 to-transparent rounded-xl sm:rounded-4xl" />
+
+                {/* Desktop: full buttons — top-right */}
+                <div className="hidden sm:flex absolute top-4 right-4 gap-2 z-10">
+                    <button
+                        className="btn btn-sm btn-secondary btn-soft"
+                        onClick={() => document.getElementById("project_form").showModal()}
+                    >
+                        <i className="fas fa-pen-to-square text-xs" /> EDIT
+                    </button>
+                    <button
+                        className="btn btn-sm btn-error btn-soft"
+                        onClick={() => document.getElementById("delete_modal").showModal()}
+                    >
+                        <i className="fas fa-trash text-xs" /> DELETE
+                    </button>
+                </div>
+
+                {/* Mobile: dropdown — top-right */}
+                <div className="dropdown dropdown-end sm:hidden absolute top-4 right-4 z-10">
+                    <button tabIndex={0} className="btn btn-sm btn-secondary btn-soft p-1">
+                        <i className="fas fa-ellipsis-vertical" />
+                    </button>
+                    <ul tabIndex={0} className="dropdown-content menu bg-base-100 rounded-box shadow-lg z-20 w-36 p-1 mt-1">
+                        <li>
+                            <button onClick={() => document.getElementById("project_form").showModal()}>
+                                <i className="fas fa-pen-to-square text-xs" /> Edit
+                            </button>
+                        </li>
+                        <li>
+                            <button
+                                className="text-error"
+                                onClick={() => document.getElementById("delete_modal").showModal()}
+                            >
+                                <i className="fas fa-trash text-xs" /> Delete
+                            </button>
+                        </li>
+                    </ul>
+                </div>
             </div>
 
-            <div className="max-w-4xl mx-auto px-4">
+            <div className="max-w-4xl mx-auto px-2">
 
                 {/* Main card */}
                 <div className="relative -mt-16 sm:-mt-32 z-10">
@@ -129,36 +167,20 @@ function ProjectDetails() {
 
                             {/* Header + Description */}
                             <div className="p-2">
-                                <div className="flex items-start justify-between gap-2 flex-wrap">
+                                <div className="flex items-start justify-between gap-2 w-full">
                                     <div className="space-y-1">
-                                        <p className="text-sm uppercase tracking-widest font-medium">
+                                        <p className="text-xs sm:text-sm uppercase tracking-widest font-medium">
                                             {data.project_type}
                                         </p>
                                         <h1 className="text-xl sm:text-4xl font-bold leading-tight">
                                             {data.project_name}
                                         </h1>
                                     </div>
-                                    <div className="flex items-center gap-2 flex-wrap">
-                                        <span className={`badge badge-md sm:badge-lg font-semibold ${STATUS_BADGES[data.status] ?? 'badge-ghost'}`}>
-                                            {data.status.charAt(0).toUpperCase() + data.status.slice(1)}
-                                        </span>
-                                        <button
-                                            className="btn btn-sm btn-secondary"
-                                            onClick={() => document.getElementById("project_form").showModal()}
-                                        >
-                                            <i className="fas fa-pen-to-square text-xs" /> EDIT
-                                        </button>
-                                        <button
-                                            className="btn btn-sm btn-error"
-                                            onClick={() => document.getElementById("delete_modal").showModal()}
-                                        >
-                                            <i className="fas fa-trash text-xs" /> DELETE
-                                        </button>
-                                    </div>
+                                    <span className={`badge badge-sm font-semibold shrink-0 ${STATUS_BADGES[data.status] ?? 'badge-ghost'}`}>
+                                        {data.status.charAt(0).toUpperCase() + data.status.slice(1)}
+                                    </span>
                                 </div>
-
                                 <div className="divider my-2 before:bg-neutral-content after:bg-neutral-content" />
-
                                 {data.description && (
                                     <div className="text-sm sm:text-base leading-relaxed text-base-content">
                                         {data.description}
@@ -201,7 +223,7 @@ function ProjectDetails() {
             />
 
             {/* Delete confirmation */}
-            <dialog id="delete_modal" className="modal modal-bottom sm:modal-middle">
+            <dialog id="delete_modal" className="modal modal-top sm:modal-middle">
                 <div className="modal-box bg-neutral">
                     <h3 className="font-bold text-lg">Delete Project?</h3>
                     <p className="text-sm text-base-content/60 mt-1">

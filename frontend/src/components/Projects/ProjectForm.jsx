@@ -1,6 +1,12 @@
 import { useState, useEffect } from "react";
 import { projectsAPI } from "../../services/api";
 
+const COVER_OPTIONS = [
+    "default", "white", "gray", "black",
+    "red", "orange", "yellow", "green",
+    "blue", "purple", "pink", "brown", "cyan",
+];
+
 function ProjectForm({ header, project = null, onSuccess }) {
     const [form, setForm] = useState({
         project_name: "",
@@ -8,6 +14,7 @@ function ProjectForm({ header, project = null, onSuccess }) {
         project_type: "",
         status: "planned",
         deadline: "",
+        cover_image: "default",
     });
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState(null);
@@ -20,6 +27,7 @@ function ProjectForm({ header, project = null, onSuccess }) {
                 project_type: project.project_type,
                 status: project.status,
                 deadline: project.deadline ?? "",
+                cover_image: project.cover_image ?? "default",
             });
         } else {
             setForm({
@@ -28,12 +36,19 @@ function ProjectForm({ header, project = null, onSuccess }) {
                 project_type: "",
                 status: "planned",
                 deadline: "",
+                cover_image: "default",
             });
         }
     }, [project]);
 
     const handleChange = (e) => {
         setForm(prev => ({ ...prev, [e.target.name]: e.target.value }));
+    };
+
+    const handleCoverNav = (dir) => {
+        const currentIndex = COVER_OPTIONS.indexOf(form.cover_image);
+        const newIndex = (currentIndex + dir + COVER_OPTIONS.length) % COVER_OPTIONS.length;
+        setForm(prev => ({ ...prev, cover_image: COVER_OPTIONS[newIndex] }));
     };
 
     const handleSubmit = async () => {
@@ -71,9 +86,10 @@ function ProjectForm({ header, project = null, onSuccess }) {
                 project_type: project.project_type,
                 status: project.status,
                 deadline: project.deadline ?? "",
+                cover_image: project.cover_image ?? "default",
             });
         } else {
-            setForm({ project_name: "", description: "", project_type: "", status: "planned", deadline: "" });
+            setForm({ project_name: "", description: "", project_type: "", status: "planned", deadline: "", cover_image: "default" });
         }
     };
 
@@ -147,6 +163,36 @@ function ProjectForm({ header, project = null, onSuccess }) {
                             onChange={handleChange}
                             className="input input-secondary input-lg w-full"
                         />
+                    </div>
+
+                    {/* Cover Image Picker */}
+                    <div className="space-y-2">
+                        <div className="flex items-center justify-between">
+                            <label className="label">Cover Image</label>
+                            <span className="text-sm text-base-content/50 capitalize">{form.cover_image}</span>
+                        </div>
+                        <div className="relative w-full h-28 rounded-xl overflow-hidden">
+                            <img
+                                src={`/covers/${form.cover_image}.jpg`}
+                                alt={form.cover_image}
+                                className="w-full h-full object-cover transition-all duration-200"
+                            />
+                            <div className="absolute inset-0 flex items-center justify-between px-3">
+                                <button type="button" onClick={() => handleCoverNav(-1)} className="btn btn-circle btn-sm">❮</button>
+                                <button type="button" onClick={() => handleCoverNav(1)} className="btn btn-circle btn-sm">❯</button>
+                            </div>
+                        </div>
+                        <div className="flex justify-center gap-1 flex-wrap">
+                            {COVER_OPTIONS.map((opt) => (
+                                <button
+                                    key={opt}
+                                    type="button"
+                                    onClick={() => setForm(prev => ({ ...prev, cover_image: opt }))}
+                                    className={`w-2 h-2 rounded-full transition-all ${form.cover_image === opt ? "bg-primary scale-125" : "bg-base-content/30"
+                                        }`}
+                                />
+                            ))}
+                        </div>
                     </div>
                 </div>
 
