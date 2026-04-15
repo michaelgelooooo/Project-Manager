@@ -36,27 +36,27 @@ function ProjectCard({ project }) {
 
                     {/* Content */}
                     <div className="card-body p-2 sm:p-4 min-w-0">
-                        <div className="flex justify-between gap-2">
+                        <div className="flex justify-between">
                             <div className="card-title text-base sm:text-lg leading-tight">
                                 {project.project_name}
                             </div>
-                            <div className={`badge badge-xs sm:badge-sm font-semibold uppercase shrink-0 transition-all duration-200 ${statusStyles[project.status] || 'badge-primary'}`}>
+                            <div className={`badge badge-xs sm:badge-sm font-semibold uppercase transition-all duration-200 ${statusStyles[project.status] || 'badge-primary'}`}>
                                 {project.status}
                             </div>
                         </div>
 
-                        <p className="text-base-content text-xs sm:text-base leading-tight">{project.project_type}</p>
+                        <p className="text-base-content text-xs sm:text-sm leading-tight">{project.project_type}</p>
 
                         <div className="space-y-1 mt-auto">
-                            <progress className="progress progress-info w-full" value="70" max="100" />
-                            <div className="flex items-center justify-between text-xs sm:text-sm">
+                            <progress className="progress progress-info w-full h-1" value="70" max="100" />
+                            <div className="flex items-center justify-between">
                                 <div className="flex items-center gap-1 text-base-content">
-                                    <i className="fas fa-pen-to-square" />
-                                    <span>{formatDate(project.updated_at)}</span>
+                                    <i className="fas fa-pen-to-square text-[10px]" />
+                                    <span className="text-xs sm:text-sm">{formatDate(project.updated_at)}</span>
                                 </div>
                                 {project.deadline && (
-                                    <span className="badge badge-sm sm:badge-md badge-error badge-soft gap-1 font-semibold">
-                                        <i className="fas fa-calendar-day text-xs" />
+                                    <span className="badge badge-xs sm:badge-md badge-error badge-soft gap-1 font-semibold">
+                                        <i className="fas fa-calendar-day text-[10px]" />
                                         {formatDate(project.deadline)}
                                     </span>
                                 )}

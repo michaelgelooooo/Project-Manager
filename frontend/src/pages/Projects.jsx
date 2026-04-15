@@ -18,20 +18,20 @@ const SORT_OPTIONS = [
     { value: "type_desc", label: "Type (Z→A)" },
 ];
 
-function TabContent({ projects, emptyState, pageSize = 8 }) {
+function TabContent({ projects, emptyState, pageSize = 10 }) {
     const { page, setPage, totalPages, paginated } = usePagination(projects, pageSize);
 
     if (projects.length === 0) return emptyState;
 
     return (
-        <>
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 sm:px-2 mb-4 ">
+        <div className="flex flex-col gap-2">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
                 {paginated.map(project => (
                     <ProjectCard key={project.id} project={project} />
                 ))}
             </div>
             <Pagination page={page} totalPages={totalPages} setPage={setPage} />
-        </>
+        </div>
     );
 }
 
@@ -165,7 +165,7 @@ function Projects() {
             {/* Desktop: collapse */}
             <div className="hidden sm:block mb-4">
                 <div className="collapse collapse-arrow bg-secondary/75 text-secondary-content rounded-lg">
-                    <input type="checkbox" defaultChecked />
+                    <input type="checkbox" />
                     <div className="collapse-title font-semibold text-2xl p-4">PROJECT STATISTICS</div>
                     <div className="collapse-content p-0">
                         <StatsDisplay stats={projectStats} />
@@ -202,7 +202,7 @@ function Projects() {
 
                 {/* Mobile: content */}
                 <div className="sm:hidden">
-                    <TabContent projects={activeProjects} emptyState={emptyState} pageSize={4} />
+                    <TabContent projects={activeProjects} emptyState={emptyState} pageSize={6} />
                 </div>
 
                 {/* Desktop: tabs */}
@@ -219,7 +219,7 @@ function Projects() {
                                     {label}
                                     <span className="badge badge-xs badge-info ms-2">{projects.length}</span>
                                 </label>
-                                <div key={`content-${key}`} className="tab-content bg-base-100 rounded-tl-none rounded-tr-lg rounded-b-lg p-4">
+                                <div key={`content-${key}`} className="tab-content bg-base-100 rounded-tl-none rounded-tr-lg rounded-b-lg p-2">
                                     <TabContent projects={projects} emptyState={emptyState} />
                                 </div>
                             </>

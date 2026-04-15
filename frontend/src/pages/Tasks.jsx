@@ -17,19 +17,16 @@ const SORT_OPTIONS = [
     { value: "project_desc", label: "Project (Z→A)" },
 ];
 
-function ColumnContent({ tasks, emptyState, pageSize = 4 }) {
+function ColumnContent({ tasks, emptyState, pageSize = 6 }) {
     const { page, setPage, totalPages, paginated } = usePagination(tasks, pageSize);
 
     if (tasks.length === 0) return emptyState;
 
     return (
-        <>
-            <div className="bg-base-100 p-2 rounded-lg flex flex-col gap-2">
-                {paginated.map(task => <TaskCard key={task.id} task={task} />)}
-
-                <Pagination page={page} totalPages={totalPages} setPage={setPage} />
-            </div>
-        </>
+        <div className="flex flex-col gap-2">
+            {paginated.map(task => <TaskCard key={task.id} task={task} />)}
+            <Pagination page={page} totalPages={totalPages} setPage={setPage} />
+        </div>
     );
 }
 
@@ -40,6 +37,7 @@ function Tasks() {
     const [error, setError] = useState(null);
     const [search, setSearch] = useState("");
     const [sortBy, setSortBy] = useState("priority_asc");
+    const [activeColumn, setActiveColumn] = useState("planned");
 
     const fetchData = async () => {
         try {
@@ -102,7 +100,7 @@ function Tasks() {
         { key: "completed", label: "Completed", tasks: tasksByStatus.completed },
     ];
 
-    const [activeColumn, setActiveColumn] = useState("planned");
+    const activeTasks = columns.find(c => c.key === activeColumn) ?? columns[0];
 
     const taskStats = [
         { title: "Active", value: stats?.active ?? "—", desc: "Planned & Ongoing", icon: "fa-folder-open", color: "text-primary" },
@@ -157,7 +155,7 @@ function Tasks() {
 
             <div className="hidden sm:block mb-4">
                 <div className="collapse collapse-arrow bg-secondary/75 text-secondary-content rounded-lg">
-                    <input type="checkbox" defaultChecked />
+                    <input type="checkbox" />
                     <div className="collapse-title font-semibold text-2xl p-4">TASK STATISTICS</div>
                     <div className="collapse-content p-0">
                         <StatsDisplay stats={taskStats} />
@@ -177,40 +175,37 @@ function Tasks() {
                     newLabel="NEW TASK"
                 />
 
-                {/* Mobile: select + single column */}
+                <div className="sm:hidden mb-4">
+                    <select
+                        className="select select-bordered select-lg select-primary w-full font-bold"
+                        value={activeColumn}
+                        onChange={e => setActiveColumn(e.target.value)}
+                    >
+                        {columns.map(({ key, label, tasks }) => (
+                            <option key={key} value={key}>
+                                {label.toUpperCase()} ({tasks.length})
+                            </option>
+                        ))}
+                    </select>
+                </div>
+
+                {/* Mobile: content */}
                 <div className="sm:hidden">
-                    <div className="mb-4">
-                        <select
-                            className="select select-bordered select-lg select-primary w-full font-bold"
-                            value={activeColumn}
-                            onChange={e => setActiveColumn(e.target.value)}
-                        >
-                            {columns.map(({ key, label, tasks }) => (
-                                <option key={key} value={key}>
-                                    {label.toUpperCase()} ({tasks.length})
-                                </option>
-                            ))}
-                        </select>
-                    </div>
-                    {(() => {
-                        const col = columns.find(c => c.key === activeColumn);
-                        return (
-                            <div className="flex flex-col gap-2">
-                                <ColumnContent tasks={col.tasks} emptyState={emptyState} pageSize={4} />
-                            </div>
-                        );
-                    })()}
+                    <ColumnContent tasks={activeTasks.tasks} emptyState={emptyState}/>
                 </div>
 
                 {/* Desktop: three columns */}
                 <div className="hidden sm:grid grid-cols-3 gap-4">
                     {columns.map(({ key, label, tasks }) => (
                         <div key={key} className="flex flex-col gap-2">
-                            <div className="bg-base-100 rounded-lg p-4 flex items-center gap-2 mb-1">
+                            <div className="bg-base-100 rounded-lg p-4 flex items-center gap-2">
                                 <h2 className="font-semibold text-xl uppercase tracking-widest">{label}</h2>
                                 <span className="badge badge-info badge-xs font-semibold">{tasks.length}</span>
                             </div>
-                            <ColumnContent tasks={tasks} emptyState={emptyState} />
+
+                            <div className="bg-base-100 p-2 rounded-lg flex flex-col gap-2">
+                                <ColumnContent tasks={tasks} emptyState={emptyState} />
+                            </div>
                         </div>
                     ))}
                 </div>

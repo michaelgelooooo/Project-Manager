@@ -33,24 +33,24 @@ function ProjectCard({ project }) {
                     <div className="card-body p-4 flex flex-col gap-2">
                         {/* Row 1: Name + Type badge */}
                         <div className="flex items-start justify-between gap-2">
-                            <div className="card-title text-lg leading-tight">{project.project_name}</div>
-                            <span className="badge badge-info badge-soft text-sm font-semibold shrink-0">{project.project_type}</span>
+                            <div className="card-title text-base sm:text-lg leading-tight">{project.project_name}</div>
+                            <span className="badge badge-info badge-soft badge-xs sm:badge-md font-semibold shrink-0">{project.project_type}</span>
                         </div>
                         {/* Row 2: Progress bar */}
-                        <progress className="progress progress-info w-full mt-auto" value="70" max="100" />
+                        <progress className="progress progress-info w-full mt-auto h-1" value="70" max="100" />
                         {/* Row 3: Updated date + Deadline */}
-                        <div className="flex items-center justify-between text-sm text-base-content">
+                        <div className="flex items-center justify-between text-base-content">
                             <div className="flex items-center gap-1">
                                 <i className="fas fa-pen-to-square text-[10px]" />
-                                <span>{formatDate(project.updated_at)}</span>
+                                <span className="text-xs sm:text-sm ">{formatDate(project.updated_at)}</span>
                             </div>
                             {project.deadline ? (
-                                <span className="badge badge-error badge-soft gap-1 font-semibold">
+                                <span className="badge badge-error badge-soft badge-xs sm:badge-md gap-1 font-semibold">
                                     <i className="fas fa-calendar-day text-[10px]" />
                                     {formatDate(project.deadline)}
                                 </span>
                             ) : (
-                                <span className="badge badge-neutral gap-1 font-semibold">
+                                <span className="badge badge-neutral badge-xs sm:badge-md gap-1 font-semibold">
                                     <i className="fas fa-calendar-xmark text-[10px]" />
                                     No Deadline
                                 </span>

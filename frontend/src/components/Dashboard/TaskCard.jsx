@@ -17,21 +17,21 @@ function TaskCard({ task }) {
             <div className="relative card bg-secondary/25 rounded-lg hover:bg-primary/75">
                 <div className="card-body p-4">
                     <div className="flex items-center justify-between">
-                        <h3 className="card-title text-lg">{task.task_name}</h3>
-                        <div className={`badge badge-sm uppercase font-semibold ${priorityStyles[task.priority] || 'badge-ghost'}`}>
-                            <i className="text-xs fas fa-flag"></i>
+                        <h3 className="card-title text-base sm:text-lg">{task.task_name}</h3>
+                        <div className={`badge badge-xs sm:badge-md uppercase font-semibold ${priorityStyles[task.priority] || 'badge-ghost'}`}>
+                            <i className="fas fa-flag text-[10px]"></i>
                             {task.priority}
                         </div>
                     </div>
                     <div className="flex items-center justify-between">
-                        <p className="text-sm text-base-content">{task.project_name}</p>
-                        <div className={`badge badge-sm badge-soft uppercase font-semibold ${statusStyles[task.status] || 'badge-ghost'}`}>
-                            <i className="text-xs fas fa-circle"></i>
+                        <p className="text-xs sm:text-sm text-base-content">{task.project_name}</p>
+                        <div className={`badge badge-xs sm:badge-md badge-soft uppercase font-semibold ${statusStyles[task.status] || 'badge-ghost'}`}>
+                            <i className="fas fa-circle text-[10px]"></i>
                             {task.status}
                         </div>
                     </div>
                     {task.due_date && (
-                        <p className="text-sm">
+                        <p className="text-xs sm:text-sm">
                             <span className="font-semibold">Due:</span>{' '}
                             {new Date(task.due_date).toLocaleDateString('en-GB', {
                                 year: 'numeric',

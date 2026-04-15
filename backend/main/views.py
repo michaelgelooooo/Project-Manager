@@ -42,6 +42,8 @@ class DashboardView(APIView):
             project__status__in=["planned", "ongoing"],
         ).order_by("-updated_at")[:5]
 
+        recent_resources = Resource.objects.all()
+
         # Serialize the data
         data = {
             "urgent_projects": ProjectSerializer(urgent_projects, many=True).data,

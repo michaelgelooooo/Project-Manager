@@ -8,13 +8,13 @@ function ResourceCard({ resource }) {
             <div className="relative card bg-secondary/25 rounded-lg hover:bg-primary/75">
                 <div className="card-body p-4">
                     <div className="flex justify-between">
-                        <h3 className="card-title text-lg">{resource.resource_title}</h3>
-                        <div className="badge badge-sm badge-soft uppercase font-semibold badge-info">
+                        <h3 className="card-title text-base sm:text-lg">{resource.resource_title}</h3>
+                        <div className="badge badge-xs sm:badge-md badge-soft uppercase font-semibold badge-info">
                             {resource.resource_type}
                         </div>
                     </div>
-                    <p className="text-sm text-base-content">{resource.project_name}</p>
-                    <p className="text-sm">
+                    <p className="text-xs sm:text-sm text-base-content">{resource.project_name}</p>
+                    <p className="text-xs sm:text-sm">
                         <span className="font-semibold">Last Updated:</span>{' '}
                         {new Date(resource.updated_at).toLocaleDateString('en-GB', {
                             year: 'numeric',
