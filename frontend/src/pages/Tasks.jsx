@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { tasksAPI } from "../services/api";
 import TaskCard from "../components/Tasks/TaskCard";
+import TaskDetails from "../components/Tasks/TaskDetails";
 import Pagination from "../components/UI/Pagination";
 import SearchSortControls from "../components/UI/SearchSortControls";
 import StatsDisplay from "../components/UI/StatsDisplay";
@@ -17,14 +18,23 @@ const SORT_OPTIONS = [
     { value: "project_desc", label: "Project (Z→A)" },
 ];
 
-function ColumnContent({ tasks, emptyState, pageSize = 6 }) {
+function ColumnContent({ tasks, emptyState, pageSize = 6, onTaskClick }) {
     const { page, setPage, totalPages, paginated } = usePagination(tasks, pageSize);
 
     if (tasks.length === 0) return emptyState;
 
     return (
         <div className="flex flex-col gap-2">
-            {paginated.map(task => <TaskCard key={task.id} task={task} />)}
+            {paginated.map(task => (
+                <TaskCard
+                    key={task.id}
+                    task={task}
+                    onClick={() => {
+                        onTaskClick(task);
+                        document.getElementById("task_details").showModal();
+                    }}
+                />
+            ))}
             <Pagination page={page} totalPages={totalPages} setPage={setPage} />
         </div>
     );
@@ -38,6 +48,7 @@ function Tasks() {
     const [search, setSearch] = useState("");
     const [sortBy, setSortBy] = useState("priority_asc");
     const [activeColumn, setActiveColumn] = useState("planned");
+    const [selectedTask, setSelectedTask] = useState(null);
 
     const fetchData = async () => {
         try {
@@ -191,7 +202,11 @@ function Tasks() {
 
                 {/* Mobile: content */}
                 <div className="sm:hidden">
-                    <ColumnContent tasks={activeTasks.tasks} emptyState={emptyState}/>
+                    <ColumnContent
+                        tasks={activeTasks.tasks}
+                        emptyState={emptyState}
+                        onTaskClick={setSelectedTask}
+                    />
                 </div>
 
                 {/* Desktop: three columns */}
@@ -204,12 +219,20 @@ function Tasks() {
                             </div>
 
                             <div className="bg-base-100 p-2 rounded-lg flex flex-col gap-2">
-                                <ColumnContent tasks={tasks} emptyState={emptyState} />
+                                <ColumnContent
+                                    tasks={tasks}
+                                    emptyState={emptyState}
+                                    onTaskClick={setSelectedTask}
+                                />
                             </div>
                         </div>
                     ))}
                 </div>
             </div>
+
+            <TaskDetails
+                task={selectedTask}
+            />
         </>
     );
 }

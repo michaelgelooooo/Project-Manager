@@ -96,8 +96,16 @@ function ProjectForm({ header, project = null, onSuccess }) {
     return (
         <dialog id="project_form" className="modal modal-top sm:modal-middle">
             <div className="modal-box bg-neutral max-w-xl">
-                <h1 className="font-bold text-2xl">{header}</h1>
-                <div className="divider my-1"></div>
+                <div className="flex items-center justify-between">
+                    <h1 className="font-bold text-2xl">{header}</h1>
+                    <form method="dialog">
+                        <button className="btn btn-ghost btn-xs btn-circle" onClick={handleCancel}>
+                            <i className="fas fa-x"></i>
+                        </button>
+                    </form>
+                </div>
+
+                <div className="divider my-1 before:bg-neutral-content after:bg-neutral-content" />
 
                 <div className="flex flex-col gap-4">
                     <div className="space-y-1">
@@ -203,7 +211,8 @@ function ProjectForm({ header, project = null, onSuccess }) {
                     </div>
                 )}
 
-                <div className="divider"></div>
+                <div className="divider before:bg-neutral-content after:bg-neutral-content" />
+
                 <div className="modal-action my-0">
                     <form method="dialog">
                         <button className="btn btn-ghost btn-lg" onClick={handleCancel}>CANCEL</button>

@@ -229,7 +229,7 @@ function Projects() {
             </div>
 
             <ProjectForm
-                header="Create Project"
+                header="CREATE PROJECT"
                 onSuccess={(slug) => navigate(`/projects/${slug}/`)}>
             </ProjectForm>
         </>

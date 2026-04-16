@@ -1,4 +1,4 @@
-function TaskCard({ task }) {
+function TaskCard({ task, onClick }) {
     const priorityStyles = {
         high: 'badge-error',
         medium: 'badge-warning',
@@ -13,7 +13,7 @@ function TaskCard({ task }) {
         });
 
     return (
-        <div className="relative h-full hover:scale-101 hover:-translate-y-1 transform transition-all duration-150 ease-in-out cursor-pointer">
+        <div className="relative h-full hover:scale-101 hover:-translate-y-1 transform transition-all duration-150 ease-in-out cursor-pointer" onClick={onClick}>
             {/* Background card */}
             <div className="absolute inset-0 bg-base-100 rounded-lg shadow-xl" />
             {/* Foreground card */}

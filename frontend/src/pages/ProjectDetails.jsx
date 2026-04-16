@@ -4,13 +4,26 @@ import { projectsAPI } from "../services/api";
 import ProjectForm from "../components/Projects/ProjectForm";
 
 const STATUS_BADGES = {
-    planned: "badge-info",
-    ongoing: "badge-success",
-    completed: "badge-primary",
-    paused: "badge-warning",
-    cancelled: "badge-error",
+    planned: "badge-error",
+    ongoing: "badge-warning",
+    completed: "badge-success",
+    paused: "badge-info",
+    cancelled: "badge-accent",
     archived: "badge-ghost",
 };
+
+const DEADLINE_BADGES = {
+    planned: { label: "Upcoming", badgeCls: "badge-error", icon: "fa-triangle-exclamation" },
+    ongoing: { label: "Important", badgeCls: "badge-warning", icon: "fa-triangle-exclamation" },
+    paused: { label: "On Hold", badgeCls: "badge-info", icon: "fa-circle-pause" },
+    completed: { label: "Closed", badgeCls: "badge-success", icon: "fa-circle-check" },
+    cancelled: { label: "Cancelled", badgeCls: "badge-accent", icon: "fa-ban" },
+    archived: { label: "Archived", badgeCls: "badge-ghost", icon: "fa-box-archive" },
+};
+
+function getDeadlineBadge(status) {
+    return DEADLINE_BADGES[status] ?? { label: "Important", badgeCls: "badge-secondary", icon: "fa-triangle-exclamation" };
+}
 
 function formatDate(dateStr, includeTime = false) {
     if (!dateStr) return "—";
@@ -136,13 +149,13 @@ function ProjectDetails() {
 
                 {/* Mobile: dropdown — top-right */}
                 <div className="dropdown dropdown-end sm:hidden absolute top-4 right-4 z-10">
-                    <button tabIndex={0} className="btn btn-sm btn-secondary btn-soft p-1">
+                    <button tabIndex={0} className="btn btn-sm btn-secondary btn-soft btn-circle p-1">
                         <i className="fas fa-ellipsis-vertical" />
                     </button>
-                    <ul tabIndex={0} className="dropdown-content menu bg-base-100 rounded-box shadow-lg z-20 w-36 p-1 mt-1">
+                    <ul tabIndex={0} className="dropdown-content menu bg-base-100 rounded-lg shadow-lg z-20 w-32 p-1 mt-1">
                         <li>
                             <button onClick={() => document.getElementById("project_form").showModal()}>
-                                <i className="fas fa-pen-to-square text-xs" /> Edit
+                                <i className="fas fa-pen-to-square text-xs" /> EDIT
                             </button>
                         </li>
                         <li>
@@ -150,60 +163,55 @@ function ProjectDetails() {
                                 className="text-error"
                                 onClick={() => document.getElementById("delete_modal").showModal()}
                             >
-                                <i className="fas fa-trash text-xs" /> Delete
+                                <i className="fas fa-trash text-xs" /> DELETE
                             </button>
                         </li>
                     </ul>
                 </div>
             </div>
 
-            <div className="max-w-4xl mx-auto px-2">
+            <div className="max-w-7xl mx-auto px-2">
 
                 {/* Main card */}
                 <div className="relative -mt-16 sm:-mt-32 z-10">
                     <div className="absolute inset-0 bg-base-100 rounded-2xl shadow-xl" />
                     <div className="relative card bg-secondary/25">
-                        <div className="card-body p-4 sm:p-8 gap-4">
-
-                            {/* Header + Description */}
-                            <div className="p-2">
-                                <div className="flex items-start justify-between gap-2 w-full">
-                                    <div className="space-y-1">
-                                        <p className="text-xs sm:text-sm uppercase tracking-widest font-medium">
-                                            {data.project_type}
-                                        </p>
-                                        <h1 className="text-xl sm:text-4xl font-bold leading-tight">
-                                            {data.project_name}
-                                        </h1>
-                                    </div>
-                                    <span className={`badge badge-sm font-semibold shrink-0 ${STATUS_BADGES[data.status] ?? 'badge-ghost'}`}>
-                                        {data.status.charAt(0).toUpperCase() + data.status.slice(1)}
-                                    </span>
-                                </div>
-                                <div className="divider my-2 before:bg-neutral-content after:bg-neutral-content" />
-                                {data.description && (
-                                    <div className="text-sm sm:text-base leading-relaxed text-base-content">
-                                        {data.description}
-                                    </div>
-                                )}
+                        <div className="card-body p-4 sm:p-8 gap-0">
+                            <div className='flex items-center justify-betweem'>
+                                <p className="text-xs sm:text-sm uppercase tracking-widest font-medium">
+                                    {data.project_type}
+                                </p>
+                                <span className={`badge badge-xs sm:badge-md font-semibold shrink-0 ${STATUS_BADGES[data.status] ?? 'badge-ghost'}`}>
+                                    {data.status.charAt(0).toUpperCase() + data.status.slice(1)}
+                                </span>
                             </div>
 
-                            {/* Deadline */}
-                            {data.deadline && (
-                                <div className="bg-secondary rounded-lg p-4 flex items-center justify-between gap-4 flex-wrap">
-                                    <div>
-                                        <p className="text-xs uppercase tracking-widest text-secondary-content">
-                                            Deadline
-                                        </p>
-                                        <p className="text-lg sm:text-2xl font-bold text-secondary-content">
-                                            {formatDate(data.deadline)}
-                                        </p>
-                                    </div>
-                                    <span className="badge badge-secondary badge-soft font-semibold gap-2">
-                                        <i className="fa-solid fa-triangle-exclamation text-[10px]" /> Important
-                                    </span>
-                                </div>
+                            <h1 className="text-xl sm:text-4xl font-bold leading-tight">
+                                {data.project_name}
+                            </h1>
+
+                            <div className="divider my-2 before:bg-neutral-content after:bg-neutral-content" />
+
+                            {data.description && (
+                                <p className="text-sm sm:text-base leading-relaxed text-base-content mb-4">
+                                    {data.description}
+                                </p>
                             )}
+
+                            {data.deadline && (() => {
+                                const { label, badgeCls, icon } = getDeadlineBadge(data.status);
+                                return (
+                                    <div className="bg-secondary text-secondary-content rounded-lg p-4 flex items-center justify-between gap-4 flex-wrap mb-2">
+                                        <div>
+                                            <p className="text-xs uppercase tracking-widest">Deadline</p>
+                                            <p className="text-lg sm:text-2xl font-bold">{formatDate(data.deadline)}</p>
+                                        </div>
+                                        <span className={`badge badge-soft font-semibold uppercase gap-2 ${badgeCls}`}>
+                                            <i className={`fa-solid ${icon} text-[10px]`} /> {label}
+                                        </span>
+                                    </div>
+                                );
+                            })()}
 
                             {/* Meta grid */}
                             <div className="grid grid-cols-2 gap-2">
@@ -216,8 +224,21 @@ function ProjectDetails() {
                 </div>
             </div>
 
+            <div className="max-w-7xl mx-auto px-2">
+
+                {/* Main card */}
+                <div className="relative mt-4">
+                    <div className="absolute inset-0 bg-base-100 rounded-2xl shadow-xl" />
+                    <div className="relative card bg-secondary/25">
+                        <div className="card-body p-4 sm:p-8 gap-4">
+                            tasks & Resources here
+                        </div>
+                    </div>
+                </div>
+            </div>
+
             <ProjectForm
-                header="Update Project"
+                header="UPDATE PROJECT"
                 project={data}
                 onSuccess={fetchProjectDetails}
             />

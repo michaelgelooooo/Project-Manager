@@ -4,13 +4,15 @@ from .models import Task
 
 class TaskSerializer(serializers.ModelSerializer):
     project_name = serializers.CharField(source='project.project_name', read_only=True)
+    project_slug = serializers.SlugField(source="project.slug", read_only=True)
 
     class Meta:
         model = Task
         fields = [
             "id",
             "project",
-            "project_name",  # add this
+            "project_name",
+            "project_slug",
             "task_name",
             "slug",
             "description",
