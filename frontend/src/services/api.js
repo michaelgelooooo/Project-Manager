@@ -1,6 +1,7 @@
 import axios from 'axios';
 
-const API_URL = 'http://192.168.91.125:8000/api';
+const API_URL = 'http://localhost:8000/api';
+// const API_URL = 'http://192.168.91.125:8000/api';
 
 const api = axios.create({
     baseURL: API_URL,
@@ -112,6 +113,7 @@ export const projectsAPI = {
 
 export const tasksAPI = {
     getAll: () => api.get('/tasks/'),
+    getByProject: (projectSlug) => api.get(`/projects/${projectSlug}/tasks/`),
     getStats: () => api.get('/tasks/stats/'),
     getById: (id) => api.get(`/tasks/${id}/`),
     create: (taskData) => api.post('/tasks/', taskData),

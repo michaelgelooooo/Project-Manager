@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import { dashboardAPI } from '../services/api';
 import ProjectCard from '../components/Dashboard/ProjectCard';
 import TaskCard from '../components/Dashboard/TaskCard';
+import TaskDetails from '../components/Tasks/TaskDetails';
 import ResourceCard from '../components/Dashboard/ResourceCard'
 
 function Dashboard() {
@@ -10,6 +11,7 @@ function Dashboard() {
     const [error, setError] = useState(null);
 
     const [openPanel, setOpenPanel] = useState('todo');
+    const [selectedTask, setSelectedTask] = useState(null);
 
     const toggle = (panel) => {
         setOpenPanel(current => current === panel ? (panel === 'todo' ? 'resources' : 'todo') : panel);
@@ -117,7 +119,14 @@ function Dashboard() {
                             </div>
                         ) : (
                             data?.urgent_tasks?.map((task) => (
-                                <TaskCard key={task.id} task={task} />
+                                <TaskCard
+                                    key={task.id}
+                                    task={task}
+                                    onClick={() => {
+                                        setSelectedTask(task);
+                                        document.getElementById('task_details').showModal();
+                                    }}
+                                />
                             ))
                         )}
                     </div>
@@ -148,6 +157,8 @@ function Dashboard() {
                     </div>
                 </details>
             </section>
+
+            <TaskDetails task={selectedTask} />
         </div>
     );
 }

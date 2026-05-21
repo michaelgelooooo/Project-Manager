@@ -1,7 +1,13 @@
 import { useEffect, useState } from 'react';
 import { Link, useParams, useNavigate } from 'react-router-dom';
 import { projectsAPI } from "../services/api";
+import { tasksAPI } from '../services/api';
 import ProjectForm from "../components/Projects/ProjectForm";
+import TaskCard from "../components/Tasks/TaskCard";
+import TaskDetails from "../components/Tasks/TaskDetails";
+import Pagination from "../components/UI/Pagination";
+import SearchSortControls from "../components/UI/SearchSortControls";
+import usePagination from "../hooks/usePagination";
 
 const STATUS_BADGES = {
     planned: "badge-error",
@@ -20,6 +26,17 @@ const DEADLINE_BADGES = {
     cancelled: { label: "Cancelled", badgeCls: "badge-accent", icon: "fa-ban" },
     archived: { label: "Archived", badgeCls: "badge-ghost", icon: "fa-box-archive" },
 };
+
+const SORT_OPTIONS = [
+    { value: "priority_asc", label: "Priority (High first)" },
+    { value: "priority_desc", label: "Priority (Low first)" },
+    { value: "due_date_asc", label: "Due Date (Asc)" },
+    { value: "due_date_desc", label: "Due Date (Desc)" },
+    { value: "name_asc", label: "Name (A→Z)" },
+    { value: "name_desc", label: "Name (Z→A)" },
+];
+
+const PRIORITY_ORDER = { high: 0, medium: 1, low: 2 };
 
 function getDeadlineBadge(status) {
     return DEADLINE_BADGES[status] ?? { label: "Important", badgeCls: "badge-secondary", icon: "fa-triangle-exclamation" };
@@ -51,18 +68,49 @@ function MetaCard({ icon, label, dateStr }) {
     );
 }
 
+function ColumnContent({ tasks, emptyState, pageSize = 6, onTaskClick }) {
+    const { page, setPage, totalPages, paginated } = usePagination(tasks, pageSize);
+
+    if (tasks.length === 0) return emptyState;
+
+    return (
+        <div className="flex flex-col gap-2">
+            {paginated.map(task => (
+                <TaskCard
+                    key={task.id}
+                    task={task}
+                    onClick={() => {
+                        onTaskClick(task);
+                        document.getElementById("task_details").showModal();
+                    }}
+                />
+            ))}
+            <Pagination page={page} totalPages={totalPages} setPage={setPage} />
+        </div>
+    );
+}
+
 function ProjectDetails() {
     const { slug } = useParams();
     const [data, setData] = useState(null);
+    const [tasks, setTasks] = useState([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
-    const navigate = useNavigate()
+    const [search, setSearch] = useState("");
+    const [sortBy, setSortBy] = useState("priority_asc");
+    const [activeColumn, setActiveColumn] = useState("planned");
+    const [selectedTask, setSelectedTask] = useState(null);
+    const navigate = useNavigate();
 
-    const fetchProjectDetails = async () => {    // lift out of useEffect
+    const fetchProjectDetails = async () => {
         try {
-            const response = await projectsAPI.getBySlug(slug);
-            setData(response.data);
-            document.title = `MOMENTUM | ${response.data.project_name}`;
+            const [projectRes, tasksRes] = await Promise.all([
+                projectsAPI.getBySlug(slug),
+                tasksAPI.getByProject(slug),
+            ]);
+            setData(projectRes.data);
+            setTasks(tasksRes.data);
+            document.title = `MOMENTUM | ${projectRes.data.project_name}`;
         } catch (err) {
             setError(err.message);
         } finally {
@@ -82,6 +130,52 @@ function ProjectDetails() {
             console.error(err.response?.data);
         }
     };
+
+    const sortTasks = (taskList) => {
+        return [...taskList].sort((a, b) => {
+            switch (sortBy) {
+                case "name_asc": return a.task_name.localeCompare(b.task_name);
+                case "name_desc": return b.task_name.localeCompare(a.task_name);
+                case "priority_asc": return (PRIORITY_ORDER[a.priority] ?? 99) - (PRIORITY_ORDER[b.priority] ?? 99);
+                case "priority_desc": return (PRIORITY_ORDER[b.priority] ?? 99) - (PRIORITY_ORDER[a.priority] ?? 99);
+                case "due_date_asc":
+                    if (!a.due_date) return 1;
+                    if (!b.due_date) return -1;
+                    return new Date(a.due_date) - new Date(b.due_date);
+                case "due_date_desc":
+                    if (!a.due_date) return 1;
+                    if (!b.due_date) return -1;
+                    return new Date(b.due_date) - new Date(a.due_date);
+                default: return 0;
+            }
+        });
+    };
+
+    const filtered = sortTasks(
+        tasks.filter(t =>
+            t.task_name.toLowerCase().includes(search.toLowerCase()) ||
+            (t.priority ?? "").toLowerCase().includes(search.toLowerCase())
+        )
+    );
+
+    const tasksByStatus = { planned: [], ongoing: [], completed: [] };
+    filtered.forEach(task => tasksByStatus[task.status?.toLowerCase()]?.push(task));
+
+    const columns = [
+        { key: "planned", label: "Planned", tasks: tasksByStatus.planned },
+        { key: "ongoing", label: "Ongoing", tasks: tasksByStatus.ongoing },
+        { key: "completed", label: "Completed", tasks: tasksByStatus.completed },
+    ];
+
+    const activeTasks = columns.find(c => c.key === activeColumn) ?? columns[0];
+
+    const emptyState = (
+        <div className="group flex flex-col items-center justify-center h-48 hover:bg-primary/75 border-3 border-dashed border-secondary rounded-lg transition-color duration-150 ease-in-out p-4">
+            <i className="fas fa-clipboard-list text-5xl mb-3 transition-transform duration-200 group-hover:scale-110" />
+            <p className="text-lg font-semibold">No tasks found</p>
+            <p className="text-sm text-center">No tasks match your search</p>
+        </div>
+    );
 
     if (loading) return (
         <div className="min-h-screen flex items-center justify-center">
@@ -224,14 +318,66 @@ function ProjectDetails() {
                 </div>
             </div>
 
+            {/* Tasks Kanban */}
             <div className="max-w-7xl mx-auto px-2">
-
-                {/* Main card */}
                 <div className="relative mt-4">
                     <div className="absolute inset-0 bg-base-100 rounded-2xl shadow-xl" />
                     <div className="relative card bg-secondary/25">
                         <div className="card-body p-4 sm:p-8 gap-4">
-                            tasks & Resources here
+                            <SearchSortControls
+                                search={search}
+                                onSearchChange={setSearch}
+                                searchPlaceholder="Search tasks..."
+                                sortBy={sortBy}
+                                onSortChange={setSortBy}
+                                sortOptions={SORT_OPTIONS}
+                                onNew={() => { }}
+                                newLabel="NEW TASK"
+                            />
+
+                            {/* Mobile: column selector */}
+                            <div className="sm:hidden mb-4">
+                                <select
+                                    className="select select-bordered select-lg select-primary w-full font-bold"
+                                    value={activeColumn}
+                                    onChange={e => setActiveColumn(e.target.value)}
+                                >
+                                    {columns.map(({ key, label, tasks }) => (
+                                        <option key={key} value={key}>
+                                            {label.toUpperCase()} ({tasks.length})
+                                        </option>
+                                    ))}
+                                </select>
+                            </div>
+
+                            {/* Mobile: active column content */}
+                            <div className="sm:hidden">
+                                <ColumnContent
+                                    tasks={activeTasks.tasks}
+                                    emptyState={emptyState}
+                                    onTaskClick={setSelectedTask}
+                                />
+                            </div>
+
+                            {/* Desktop: three columns */}
+                            <div className="hidden sm:grid grid-cols-3 gap-4">
+                                {columns.map(({ key, label, tasks }) => (
+                                    <div key={key} className="flex flex-col gap-2">
+                                        <div className="bg-base-100 rounded-lg p-4 flex items-center gap-2">
+                                            <h2 className="font-semibold text-xl uppercase tracking-widest">{label}</h2>
+                                            <span className="badge badge-info badge-xs font-semibold">{tasks.length}</span>
+                                        </div>
+                                        <div className="bg-base-100 p-2 rounded-lg flex flex-col gap-2">
+                                            <ColumnContent
+                                                tasks={tasks}
+                                                emptyState={emptyState}
+                                                onTaskClick={setSelectedTask}
+                                            />
+                                        </div>
+                                    </div>
+                                ))}
+                            </div>
+
                         </div>
                     </div>
                 </div>
@@ -242,6 +388,8 @@ function ProjectDetails() {
                 project={data}
                 onSuccess={fetchProjectDetails}
             />
+
+            <TaskDetails task={selectedTask} />
 
             {/* Delete confirmation */}
             <dialog id="delete_modal" className="modal modal-top sm:modal-middle">

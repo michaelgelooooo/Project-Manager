@@ -14,6 +14,14 @@ class TaskViewSet(viewsets.ModelViewSet):
     permission_classes = [IsAuthenticated]
 
     def get_queryset(self):
+        project_slug = self.kwargs.get('project_slug')
+        
+        if project_slug:
+            return Task.objects.filter(
+                project__user=self.request.user,
+                project__slug=project_slug,
+            )
+        
         return Task.objects.filter(
             project__user=self.request.user,
             project__status__in=["planned", "ongoing"],
